@@ -1,0 +1,12 @@
+Ray endpoint 1: lat. (deg. N), long. (deg. E), height (km)
+  55.58  37.38    55.34
+Ray endpoint 2: lat. (deg. N), long. (deg. E), height (km)
+  55.52  37.89   600.00
+zenith angle (deg.) and azimuth (N over E to S, deg.) of ray at endpoint 1 
+   3.77  34.17
+S10.7, R12, month, UT:  300.0, 248.9,  4, 14.0
+
+Electron contents along ray.
+  (h1-h2) means from point in height h1 to point in height h2 (heights in km)
+Electron content (  55- 600)
+                      292.24
