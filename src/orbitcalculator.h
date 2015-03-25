@@ -1,0 +1,7 @@
+
+
+class OrbitCalculator 
+{
+  public:
+    OrbitCalculator();
+}
