@@ -5,8 +5,11 @@ enable_language(Fortran)
 
 set(Fortran_FLAGS "-lgfortran")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Fortran_FLAGS}")
+set(CMAKE_CXX_FLAGS "-g")
 
 aux_source_directory(src SRC_LIST)
+aux_source_directory(src/sgp_sdp_model SRC_LIST)
+aux_source_directory(src/sgp_sdp_model SGP_MODEL)
 add_executable(${PROJECT_NAME} ${SRC_LIST} "src/nequick.f" "src/slqu.f")
 
 set(PROJECT_BINARY_DIR ./build)

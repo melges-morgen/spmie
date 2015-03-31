@@ -1,4 +1,9 @@
 
+class OrbitPoint {
+
+  private:
+
+}
 
 class OrbitCalculator 
 {
@@ -7,4 +12,6 @@ class OrbitCalculator
 
     OrbitCalculator(double excentrisitet, double period, double angle,
         double latitude, double longitude);
+
+
 }
