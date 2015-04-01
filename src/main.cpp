@@ -1,10 +1,32 @@
-#include <stdlib.h>
 #include <getopt.h>
-#include <math.h>
 
+#include <cmath>
 #include <iostream>
+#include <iomanip>
 
 #include "sgp_sdp_model/sgp4unit.h"
+
+double *ConvertToGeo(double r[], double gr[]) 
+{
+  double earth_r = 6378.137;
+  double r_v = sqrt(pow(r[0], 2) + pow(r[1], 2) + pow(r[2], 2));
+  
+  double zenit = asin(r[2] / r_v);
+  double azimuth = remainder(atan(r[1] / r[0]), 2 * M_PI);
+  
+  gr[0] = zenit * 180 / M_PI;
+  gr[1] = azimuth * 180 / M_PI;
+  gr[2] = r_v - earth_r;
+
+  if(r[0] < 0)
+    gr[1] += 180;
+//  if(gr[1] > 180) 
+//    gr[1] -= 360;
+
+  
+
+  return gr;
+}
 
 
 static const char *opt_string = "h";
@@ -26,11 +48,11 @@ int main(int argc, char **argv)
 
   double deg2rad = M_PI / 180, xpdotp = 1440.0 / M_PI * 2;
 
-  int sputnik_number = 39765;
-  double epoch = (2014 - 1950)*365 + 264.51, xbstar = 0.0, xecco = 0.018110,
-         xargpo = 317.1560 * deg2rad, xinclo = 82.4519 * deg2rad, 
-         xmo = 42.8029 * deg2rad,
-         xno = 12.429 / xpdotp, xnodeo = 349.4209 * deg2rad;
+  int sputnik_number = 25544;
+  double epoch = (2008 - 1950)*365 + 264.51, xbstar = 0.0, xecco = 0.0006703,
+         xargpo = 130.5306 * deg2rad, xinclo = 51.6416 * deg2rad, 
+         xmo = 325.0288 * deg2rad,
+         xno = 15.721 / xpdotp, xnodeo = 247.4627 * deg2rad;
 
 
   elsetrec orbit_param;
@@ -38,15 +60,27 @@ int main(int argc, char **argv)
       xinclo, xmo, xno, xnodeo,
       orbit_param);
 
-  double r[3], v[3];
-
+  double r[3], gr[3], v[3];
+  std::cout << "Минута после эпохи, " 
+      << std::setw(8) << "Широта,\t"  
+      << std::setw(8) << "Долгота,\t" 
+      << std::setw(8) << "Высота,\t"
+      << std::setw(8) << "X,\t" 
+      << std::setw(8) << "Y,\t"  
+      << std::setw(8) << "Z" << std::endl;
   
-  for(int minute = 0; minute < 480; minute +=6) {
+  for(double minute = 140; minute < 720; minute += 1) {
     sgp4(wgs84, orbit_param, minute, r, v);
-    //std::cout << r[1] << " " << r[1] << " " << r[2] << " - "
-    //  << v[0] << " " << v[1] << " " << v[2] << std::endl;
-    std::cout << minute << " after epoch, " << asin(r[1]) * 180 / M_PI << ", "
-      << asin(r[1] / sqrt((1 - pow(r[0], 2)))) * 180 / M_PI << std::endl;
+    ConvertToGeo(r, gr);
+    std::cout << minute << " минута после эпохи, " 
+      << std::setw(8) << gr[0] << ",\t" 
+      << std::setw(8) << gr[1] << ",\t" 
+      << std::setw(8) << gr[2] << ",\t"
+      << std::setw(8) << r[0] << ",\t" 
+      << std::setw(8) << r[1] << ",\t" 
+      << std::setw(8) << r[2] << std::endl;
+//  std::cout << minute << " after epoch, " << asin(r[1]) * 180 / M_PI << ", "
+//    << asin(r[1] / sqrt((1 - pow(r[0], 2)))) * 180 / M_PI << std::endl;
   }
   
 //  std::cout << nequickintegral_(&alat1, &along1, &h1,

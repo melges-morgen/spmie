@@ -1,9 +1,12 @@
 
-class OrbitPoint {
+class CartesianOrbitPoint {
 
   private:
+    double x_coord;
+    double y_coord;
+    double z_coord;
 
-}
+};
 
 class OrbitCalculator 
 {
@@ -14,4 +17,4 @@ class OrbitCalculator
         double latitude, double longitude);
 
 
-}
+};

@@ -1896,9 +1896,9 @@ int sgp4
          r[0] = (mrt * ux)* radiusearthkm;
          r[1] = (mrt * uy)* radiusearthkm;
          r[2] = (mrt * uz)* radiusearthkm;
-         r[0] = ux;
-         r[1] = uy;
-         r[2] = uz;
+//         r[0] = ux;
+//         r[1] = uy;
+//         r[2] = uz;
          v[0] = (mvt * ux + rvdot * vx) * vkmpersec;
          v[1] = (mvt * uy + rvdot * vy) * vkmpersec;
          v[2] = (mvt * uz + rvdot * vz) * vkmpersec;
