@@ -1,6 +1,8 @@
 #include <ctime>
 #include <vector>
 
+#include "sgp_sdp_model/sgp4unit.cpp"
+
 class OrbitPoint {
 
   public:
@@ -17,13 +19,13 @@ class OrbitPoint {
     double GetZ();
 
   private:
-    double x_coord;
-    double y_coord;
-    double z_coord;
+    double x_coord_;
+    double y_coord_;
+    double z_coord_;
 
-    double zenit;
-    double azimuth;
-    double high;
+    double zenit_;
+    double azimuth_;
+    double high_;
 
     /**
      * Time (in unix time format) when sattelite goes the orbit point.
@@ -59,6 +61,9 @@ class Orbit
 
     std::vector<OrbitPoint> GetTrajectoryPoints(double start_time, 
         double end_time, time_t time_step);
+
+  private:
+    elsetrec orbit_param_;
 
 
 };
