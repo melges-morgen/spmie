@@ -4,6 +4,8 @@
 #include <iostream>
 #include <iomanip>
 
+#include "orbitcalculator.h"
+#include "astroutils.h"
 #include "sgp_sdp_model/sgp4unit.h"
 
 double *ConvertToGeo(double r[], double gr[], double time) 
@@ -24,9 +26,7 @@ double *ConvertToGeo(double r[], double gr[], double time)
   if(gr[1] > 180) 
     gr[1] -= 360;
   if(gr[1] < -180)
-    gr[1] += 360;
-
-  
+    gr[1] += 360; 
 
   return gr;
 }
@@ -59,12 +59,16 @@ int main(int argc, char **argv)
          xno = 15.721 / xpdotp, xnodeo = 247.4627 * deg2rad;
 
 
-  elsetrec orbit_param;
-  sgp4init(wgs84, sputnik_number, epoch, xbstar, xecco, xargpo, 
-      xinclo, xmo, xno, xnodeo,
-      orbit_param);
+  Orbit zarya_orbit(sputnik_number, astroutils::ConvertAstroTimeToUnix(epoch),
+      xbstar, xinclo, xnodeo, xecco, xargpo, xmo, xno);
 
-  double r[3], gr[3], v[3];
+
+//  elsetrec orbit_param;
+//  sgp4init(wgs84, sputnik_number, epoch, xbstar, xecco, xargpo, 
+//      xinclo, xmo, xno, xnodeo,
+//      orbit_param);
+
+//  double r[3], gr[3], v[3];
   std::cout << "Минута после эпохи, " 
       << std::setw(8) << "Широта,\t"  
       << std::setw(8) << "Долгота,\t" 
@@ -72,17 +76,18 @@ int main(int argc, char **argv)
       << std::setw(8) << "X,\t" 
       << std::setw(8) << "Y,\t"  
       << std::setw(8) << "Z" << std::endl;
-  double int_part;
+//  double int_part;
   for(double minute = 140; minute < 720; minute += 1) {
-    sgp4(wgs84, orbit_param, minute, r, v);
-    ConvertToGeo(r, gr, modf(epoch_day, &int_part) + minute / 1440);
+   // sgp4(wgs84, orbit_param, minute, r, v);
+   // ConvertToGeo(r, gr, modf(epoch_day, &int_part) + minute / 1440);
+   OrbitPoint point = zarya_orbit.GetTrajectoryPoint(minute * 60);
     std::cout << minute << " минута после эпохи, " 
-      << std::setw(8) << gr[0] << ",\t" 
-      << std::setw(8) << gr[1] << ",\t" 
-      << std::setw(8) << gr[2] << ",\t"
-      << std::setw(8) << r[0] << ",\t" 
-      << std::setw(8) << r[1] << ",\t" 
-      << std::setw(8) << r[2] << std::endl;
+      << std::setw(8) << point.GetLatitude() << ",\t" 
+      << std::setw(8) << point.GetLongitude() << ",\t" 
+      << std::setw(8) << point.GetAltitude() << ",\t"
+      << std::setw(8) << point.GetX() << ",\t" 
+      << std::setw(8) << point.GetY() << ",\t" 
+      << std::setw(8) << point.GetZ() << std::endl;
 //  std::cout << minute << " after epoch, " << asin(r[1]) * 180 / M_PI << ", "
 //    << asin(r[1] / sqrt((1 - pow(r[0], 2)))) * 180 / M_PI << std::endl;
   }

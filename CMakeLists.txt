@@ -5,7 +5,7 @@ enable_language(Fortran)
 
 set(Fortran_FLAGS "-lgfortran")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Fortran_FLAGS}")
-set(CMAKE_CXX_FLAGS "-g")
+set(CMAKE_CXX_FLAGS "-g -std=c++11")
 
 aux_source_directory(src SRC_LIST)
 aux_source_directory(src/sgp_sdp_model SRC_LIST)
