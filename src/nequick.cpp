@@ -1,12 +1,12 @@
 #include "nequick.h"
 
-double NeQuick::NeQuick(double &height, double &latitude, double &longitude, 
+double nequick::NeQuick(double &height, double &latitude, double &longitude, 
     double &flux, int &month, double &time_of_day) 
 {
   return nequick_(&height, &latitude, &longitude, &month, &flux, &time_of_day);
 }
 
-double NeQuick::ElectronContent(
+double nequick::ElectronContent(
     double &start_latitude, double &start_longitude, double &start_height, 
     double &end_latitude, double &end_longitude, double &end_height,
     double &flux, int &year, int &month, double &time_of_day) 

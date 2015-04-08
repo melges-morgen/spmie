@@ -29,7 +29,7 @@ extern "C"
       int *, int *, double *, double *);
 }
 
-namespace NeQuick 
+namespace nequick 
 {
   double NeQuick(double &height, double &latitude, double &longitude,
       double &flux, int &month, double &time_of_day);
