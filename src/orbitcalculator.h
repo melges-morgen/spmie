@@ -1,92 +1,10 @@
 #ifndef ORBITCALCULATOR_H_
 #define ORBITCALCULATOR_H_
 
-#include <ctime>
 #include <vector>
+#include <ctime>
 
-#include "sgp_sdp_model/sgp4unit.h"
-
-class OrbitPoint {
-
-  public:
-    OrbitPoint();
-
-    OrbitPoint(double x_coord, double y_coord, double z_coord, 
-        time_t timetamp);
-
-    OrbitPoint(const OrbitPoint &); 
-
-    OrbitPoint & operator = (const OrbitPoint &);
-
-    inline double GetX() { return x_coord_; }
-
-    inline double GetY() { return y_coord_; }
-
-    inline double GetZ() { return z_coord_; }
-    
-    inline double GetLatitude() { return latitude_; }
-
-    inline double GetLongitude() { return longitude_; }
-
-    inline double GetAltitude() { return altitude_; }
-
-  private:
-    /**
-     * X coord in inertial cartesian coordinate system.
-     */
-    double x_coord_;
-    
-    /**
-     * Y coord in inertial cartesian coordinate system.
-     */
-    double y_coord_;
-
-    /**
-     * Z coord in inertial cartesian coordinate system.
-     */
-    double z_coord_;
-
-    /**
-     * Zenit angle (tetta), but from the ordinate (Y Axis)
-     */
-    double zenit_;
-
-    /**
-     * Azimuth angle (phi), from the abscissas (X Axis)
-     */
-    double azimuth_;
-
-    /**
-     * Length of radius vector.
-     */
-    double r_length_;
-
-    /**
-     * Latitude in degrees
-     */
-    double latitude_;
-
-    /**
-     * Longitude in degrees
-     */
-    double longitude_;
-
-    /**
-     * High under sea level.
-     */
-    double altitude_;
-
-    /**
-     * Time (in unix time format) when sattelite goes the orbit point.
-     */
-    time_t timestamp_;
-
-    bool invalid_ = true;
-
-    double earth_rotated_angle_;
-};
-
-
+#include "geocentricpoint.h"
 
 class Orbit
 {
@@ -110,11 +28,10 @@ class Orbit
         double inclination_angle, double ascending_node, double excentrisitet, 
         double pericenter_argument, double mean_anomaly, double mean_motion);
 
-    OrbitPoint GetTrajectoryPoint(time_t second_since_epoch);
+    GeocentricPoint GetTrajectoryPoint(time_t second_since_epoch);
 
-    std::vector<OrbitPoint> GetTrajectoryPoints(time_t start_time, 
+    std::vector<GeocentricPoint> GetTrajectoryPoints(time_t start_time, 
         time_t end_time, time_t time_step);
-
     
 
   private:

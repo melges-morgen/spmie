@@ -8,30 +8,6 @@
 #include "astroutils.h"
 #include "sgp_sdp_model/sgp4unit.h"
 
-double *ConvertToGeo(double r[], double gr[], double time) 
-{
-  double earth_r = 6378.137;
-  double earth_rotated_angle = 7.2921158553E-5 * 86400 * time;
-  double r_v = sqrt(pow(r[0], 2) + pow(r[1], 2) + pow(r[2], 2));
-  
-  double zenit = asin(r[2] / r_v);
-  double azimuth = remainder(atan(r[1] / r[0]), 2 * M_PI);
-  
-  gr[0] = zenit * 180 / M_PI;
-  gr[1] = (azimuth - earth_rotated_angle) * 180 / M_PI;
-  gr[2] = r_v - earth_r;
-
-  if(r[0] < 0)
-    gr[1] += 180;
-  if(gr[1] > 180) 
-    gr[1] -= 360;
-  if(gr[1] < -180)
-    gr[1] += 360; 
-
-  return gr;
-}
-
-
 static const char *opt_string = "h";
 
 static const struct option long_opts[] = 
@@ -80,7 +56,7 @@ int main(int argc, char **argv)
   for(double minute = 140; minute < 720; minute += 1) {
    // sgp4(wgs84, orbit_param, minute, r, v);
    // ConvertToGeo(r, gr, modf(epoch_day, &int_part) + minute / 1440);
-   OrbitPoint point = zarya_orbit.GetTrajectoryPoint(minute * 60);
+   GeocentricPoint point = zarya_orbit.GetTrajectoryPoint(minute * 60);
     std::cout << minute << " минута после эпохи, " 
       << std::setw(8) << point.GetLatitude() << ",\t" 
       << std::setw(8) << point.GetLongitude() << ",\t" 
