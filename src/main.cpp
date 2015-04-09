@@ -56,7 +56,7 @@ int main(int argc, char **argv)
   for(double minute = 140; minute < 720; minute += 1) {
    // sgp4(wgs84, orbit_param, minute, r, v);
    // ConvertToGeo(r, gr, modf(epoch_day, &int_part) + minute / 1440);
-   GeocentricPoint point = zarya_orbit.GetTrajectoryPoint(minute * 60);
+   OrbitPoint point = zarya_orbit.GetTrajectoryPoint(minute * 60);
     std::cout << minute << " минута после эпохи, " 
       << std::setw(8) << point.GetLatitude() << ",\t" 
       << std::setw(8) << point.GetLongitude() << ",\t" 
