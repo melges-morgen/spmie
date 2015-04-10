@@ -45,6 +45,7 @@ class GeoPoint
      * High under sea level.
      */
     double altitude_;
+
 };
 
 /**
@@ -56,7 +57,7 @@ class GeoPoint
  * altitude mean length of normal from sub-satellite point to object. Earth
  * rotation is considered for calculate latitude and longitude.
  */
-class OrbitPoint : GeoPoint
+class OrbitPoint : public GeoPoint
 {
   public:
     OrbitPoint();

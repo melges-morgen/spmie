@@ -8,6 +8,9 @@ GeoPoint::GeoPoint()
 }
 
 GeoPoint::GeoPoint(double latitude, double longitude, double altitude)
+    : latitude_(latitude),
+      longitude_(longitude),
+      altitude_(altitude)
 {
 
 }
@@ -29,11 +32,26 @@ void GeoPoint::SetAltitude(double altitude)
 
 double GeoPoint::DestanceTo(GeoPoint &other)
 {
-    /*double coord_sqr = pow(x_coord_ - other.x_coord_, 2) +
-                       pow(y_coord_ - other.y_coord_, 2) +
-                       pow(z_coord_ - other.z_coord_, 2);
-    */
-    return 0;//sqrt(coord_sqr);
+    double r1 = altitude_ + astroutils::kEarthRadius,
+        etta1 = astroutils::DegToRad(latitude_),
+        phi1 = astroutils::DegToRad(longitude_);
+    double z_coord1 = r1 * sin(etta1),
+        y_coord1 = r1 * cos(etta1) * sin(phi1),
+        x_coord1 = r1 * cos(etta1) * cos(phi1);
+
+    double r2 = other.altitude_ + astroutils::kEarthRadius,
+        etta2 = astroutils::DegToRad(other.latitude_),
+        phi2 = astroutils::DegToRad(other.longitude_);
+    double z_coord2 = r2 * sin(etta2),
+        y_coord2 = r2 * cos(etta2) * sin(phi2),
+        x_coord2 = r2 * cos(etta2) * cos(phi2);
+
+
+    double coord_sqr = pow(x_coord1 - x_coord2, 2) +
+                       pow(y_coord1 - y_coord2, 2) +
+                       pow(z_coord1 - z_coord2, 2);
+
+    return sqrt(coord_sqr);
 }
 
 OrbitPoint::OrbitPoint()
