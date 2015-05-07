@@ -22,7 +22,7 @@ class GeoPoint
 
     virtual void SetAltitude(double altitude);
 
-    virtual double DestanceTo(GeoPoint &other);
+    virtual double DistanceTo(GeoPoint &other, double min_zenith_angle);
 
     inline double GetLatitude() { return latitude_; }
 
@@ -93,9 +93,9 @@ class OrbitPoint : public GeoPoint
     double z_coord_;
 
     /**
-     * Zenit angle (tetta), but from the ordinate (Y Axis)
+     * Zenith angle (tetta), but from the ordinate (Y Axis)
      */
-    double zenit_;
+    double zenith_;
 
     /**
      * Azimuth angle (phi), from the abscissas (X Axis)

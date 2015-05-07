@@ -38,7 +38,7 @@ namespace astroutils {
 
   inline time_t ConvertAstroTimeToUnix(double days)
   {
-    return (time_t) lrint(days * kSecondsInDay) + kAstroEpochStart;
+    return lrint(days * kSecondsInDay) + kAstroEpochStart;
   }
 
   inline time_t SecondsSinceMidnight(time_t timestamp) 

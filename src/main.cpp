@@ -38,6 +38,8 @@ int main(int argc, char **argv)
     Orbit zarya_orbit(sputnik_number, astroutils::ConvertAstroTimeToUnix(epoch),
                       xbstar, xinclo, xnodeo, xecco, xargpo, xmo, xno);
 
+    GeoPoint radar_station(45.380216, 36.1791801, 40,2);
+
 
 //  elsetrec orbit_param;
 //  sgp4init(wgs84, sputnik_number, epoch, xbstar, xecco, xargpo, 
@@ -56,7 +58,7 @@ int main(int argc, char **argv)
     for (double minute = 140; minute < 720; minute += 1) {
         // sgp4(wgs84, orbit_param, minute, r, v);
         // ConvertToGeo(r, gr, modf(epoch_day, &int_part) + minute / 1440);
-        OrbitPoint point = zarya_orbit.GetTrajectoryPoint(minute * 60);
+        OrbitPoint point = zarya_orbit.GetTrajectoryPoint(lrint(minute * 60));
         std::cout << minute << " минута после эпохи, "
         << std::setw(8) << point.GetLatitude() << ",\t"
         << std::setw(8) << point.GetLongitude() << ",\t"
@@ -71,7 +73,6 @@ int main(int argc, char **argv)
     GeoPoint point1(55.930506, 37.522374, 500);
     GeoPoint point2(55.930188, 37.518115, 500);
 
-    std::cout << point1.DestanceTo(point2) << std::endl;
 //  std::cout << nequickintegral_(&alat1, &along1, &h1,
 //                                &alat2, &along2, &h2,
 //                                &y, &month, &UT, &flux) 
