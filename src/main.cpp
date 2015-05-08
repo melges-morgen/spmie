@@ -38,7 +38,7 @@ int main(int argc, char **argv)
     Orbit zarya_orbit(sputnik_number, astroutils::ConvertAstroTimeToUnix(epoch),
                       xbstar, xinclo, xnodeo, xecco, xargpo, xmo, xno);
 
-    GeoPoint radar_station(45.380216, 36.1791801, 40,2);
+    GeoPoint radar_station(45.380216, 36.1791801, 40.2);
 
 
 //  elsetrec orbit_param;

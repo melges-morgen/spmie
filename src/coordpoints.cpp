@@ -30,7 +30,7 @@ void GeoPoint::SetAltitude(double altitude)
     altitude_ = altitude;
 }
 
-double GeoPoint::DistanceTo(GeoPoint &other, double min_zenith_angle)
+double GeoPoint::DistanceTo(GeoPoint &other)
 {
     double r1 = altitude_ + astroutils::kEarthRadius,
         etta1 = astroutils::DegToRad(latitude_),
@@ -113,5 +113,4 @@ OrbitPoint &OrbitPoint::operator=(const OrbitPoint &other)
 
     return *this;
 }
-
 

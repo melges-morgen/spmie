@@ -22,7 +22,7 @@ class GeoPoint
 
     virtual void SetAltitude(double altitude);
 
-    virtual double DistanceTo(GeoPoint &other, double min_zenith_angle);
+    virtual double DistanceTo(GeoPoint &other);
 
     inline double GetLatitude() { return latitude_; }
 
@@ -114,8 +114,15 @@ class OrbitPoint : public GeoPoint
 
     bool invalid_ = true;
 
+
   private:
     double earth_rotated_angle_;
+};
+
+class RadarStation : public GeoPoint
+{
+  public:
+    
 };
 
 #endif // GEOCENTRICPOINT_H_

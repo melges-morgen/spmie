@@ -3,6 +3,7 @@
 
 #include <ctime>
 #include <cmath>
+#include <math.h>
 
 namespace astroutils {
   /**
@@ -14,7 +15,6 @@ namespace astroutils {
    * Earth radius in m
    */
   const double kEarthRadius = 6378.137 * 1000;
-
 
   /**
    * Shift in seconds between of astronomic epoch start and unix epoch start,
