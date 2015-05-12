@@ -38,7 +38,8 @@ int main(int argc, char **argv)
     Orbit zarya_orbit(sputnik_number, astroutils::ConvertAstroTimeToUnix(epoch),
                       xbstar, xinclo, xnodeo, xecco, xargpo, xmo, xno);
 
-    GeoPoint radar_station(45.380216, 36.1791801, 40.2);
+    RadarStation radar_station(45.380216, 36.1791801, 40.2, 0);
+
 
 
 //  elsetrec orbit_param;
@@ -70,8 +71,10 @@ int main(int argc, char **argv)
 //    << asin(r[1] / sqrt((1 - pow(r[0], 2)))) * 180 / M_PI << std::endl;
     }
 
-    GeoPoint point1(55.930506, 37.522374, 500);
+    RadarStation point1(55.930506, 37.522374, 500, 0);
     GeoPoint point2(55.930188, 37.518115, 500);
+    std::cout << point1.AngleTo(point2);
+
 
 //  std::cout << nequickintegral_(&alat1, &along1, &h1,
 //                                &alat2, &along2, &h2,

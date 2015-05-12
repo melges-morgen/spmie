@@ -122,7 +122,13 @@ class OrbitPoint : public GeoPoint
 class RadarStation : public GeoPoint
 {
   public:
-    
+    RadarStation(double latitude, double longitude, double altitude,
+                 double view_angle);
+
+
+    virtual double DistanceTo(GeoPoint &other) override;
+
+    double AngleTo(GeoPoint &other);
 };
 
 #endif // GEOCENTRICPOINT_H_

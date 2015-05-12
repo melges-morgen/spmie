@@ -3,7 +3,6 @@
 
 #include <ctime>
 #include <cmath>
-#include <math.h>
 
 namespace astroutils {
   /**
