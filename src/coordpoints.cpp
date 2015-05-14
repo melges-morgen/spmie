@@ -4,6 +4,10 @@
 
 #include "astroutils.h"
 
+#ifndef M_PI
+#define M_PI 3.1415
+#endif
+
 
 GeoPoint::GeoPoint()
 {
@@ -123,7 +127,7 @@ double RadarStation::DistanceTo(GeoPoint &other)
 }
 
 RadarStation::RadarStation(double latitude, double longitude, double altitude,
-                           double view_angle)
+                           double view_angle) : GeoPoint(latitude, longitude, altitude)
 {
 
 }
@@ -147,6 +151,7 @@ double RadarStation::AngleTo(GeoPoint &other)
     double numenator = (x_coord_s - x_coord_rs) * x_coord_rs +
         (y_coord_s - y_coord_rs) * y_coord_rs +
         (z_coord_s - z_coord_rs) * z_coord_rs;
+
     double denominator =
         std::sqrt(
             std::pow(x_coord_s - x_coord_rs, 2) +

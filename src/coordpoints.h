@@ -24,11 +24,11 @@ class GeoPoint
 
     virtual double DistanceTo(GeoPoint &other);
 
-    inline double GetLatitude() { return latitude_; }
+    inline double & GetLatitude() { return latitude_; }
 
-    inline double GetLongitude() { return longitude_; }
+    inline double & GetLongitude() { return longitude_; }
 
-    inline double GetAltitude() { return altitude_; }
+    inline double & GetAltitude() { return altitude_; }
 
   protected:
     /**

@@ -7,8 +7,8 @@ double nequick::NeQuick(double &height, double &latitude, double &longitude,
 }
 
 double nequick::ElectronContent(
-    double &start_latitude, double &start_longitude, double &start_height, 
-    double &end_latitude, double &end_longitude, double &end_height,
+    double &start_latitude, double start_longitude, double &start_height,
+    double &end_latitude, double &end_longitude, double end_height,
     double &flux, int &year, int &month, double &time_of_day) 
 {
   return nequickintegral_(&start_latitude, &start_longitude, &start_height,

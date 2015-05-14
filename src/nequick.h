@@ -35,8 +35,8 @@ namespace nequick
       double &flux, int &month, double &time_of_day);
 
   double ElectronContent(
-      double &start_latitude, double &start_longitude, double &start_height, 
-      double &end_latitude, double &end_longitude, double &end_height,
+      double &start_latitude, double start_longitude, double &start_height,
+      double &end_latitude, double &end_longitude, double end_height,
       double &flux, int &year, int &month, double &time_of_day);
 }
 
