@@ -29,3 +29,6 @@
 
 # Build dir
 build
+
+# Idea files
+.idea

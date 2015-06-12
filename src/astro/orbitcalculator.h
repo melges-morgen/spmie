@@ -5,6 +5,7 @@
 #include <ctime>
 
 #include "coordpoints.h"
+#include "sgp_sdp_model/sgp4unit.h"
 
 class Orbit
 {

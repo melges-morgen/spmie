@@ -4,9 +4,9 @@
 #include <iostream>
 #include <iomanip>
 
-#include "orbitcalculator.h"
-#include "astroutils.h"
-#include "nequick.h"
+#include "astro/orbitcalculator.h"
+#include "astro/astroutils.h"
+#include "nequick/nequick.h"
 
 static const char *opt_string = "h";
 
