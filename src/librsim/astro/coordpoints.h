@@ -16,6 +16,12 @@ class GeoPoint
 
     GeoPoint(double latitude, double longitude, double altitude);
 
+    inline double &GetLatitude() { return latitude_; }
+
+    inline double &GetLongitude() { return longitude_; }
+
+    inline double &GetAltitude() { return altitude_; }
+
     virtual void SetLatitude(double latitude);
 
     virtual void SetLongitude(double longitude);
@@ -24,11 +30,11 @@ class GeoPoint
 
     virtual double DistanceTo(GeoPoint &other);
 
-    inline double &GetLatitude() { return latitude_; }
+    double GetX();
 
-    inline double &GetLongitude() { return longitude_; }
+    double GetY();
 
-    inline double &GetAltitude() { return altitude_; }
+    double GetZ();
 
   protected:
     /**
@@ -69,28 +75,28 @@ class OrbitPoint : public GeoPoint
 
     OrbitPoint &operator=(const OrbitPoint &);
 
-    inline double GetX() { return x_coord_; }
+    inline double GetInertialX() { return x_inertial_coord_; }
 
-    inline double GetY() { return y_coord_; }
+    inline double GetInertialY() { return y_inertial_coord_; }
 
-    inline double GetZ() { return z_coord_; }
+    inline double GetInertialZ() { return z_inertial_coord_; }
 
 
   protected:
     /**
      * X coord in inertial cartesian coordinate system.
      */
-    double x_coord_;
+    double x_inertial_coord_;
 
     /**
      * Y coord in inertial cartesian coordinate system.
      */
-    double y_coord_;
+    double y_inertial_coord_;
 
     /**
      * Z coord in inertial cartesian coordinate system.
      */
-    double z_coord_;
+    double z_inertial_coord_;
 
     /**
      * Zenith angle (tetta), but from the ordinate (Y Axis)
@@ -117,18 +123,6 @@ class OrbitPoint : public GeoPoint
 
   private:
     double earth_rotated_angle_;
-};
-
-class RadarStation : public GeoPoint
-{
-  public:
-    RadarStation(double latitude, double longitude, double altitude,
-                 double view_angle);
-
-
-    virtual double DistanceTo(GeoPoint &other) override;
-
-    double AngleTo(GeoPoint &other);
 };
 
 #endif // GEOCENTRICPOINT_H_

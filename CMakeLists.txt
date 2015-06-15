@@ -1,5 +1,6 @@
 project(spmie)
 cmake_minimum_required(VERSION 2.8)
+set(LIB_RSIM_NAME "rsim")
 
 enable_language(Fortran)
 
@@ -7,13 +8,24 @@ set(Fortran_FLAGS "-lgfortran")
 set(CMAKE_Fortran_FLAGS "${CMAKE_Fortran_FLAGS} ${Fortran_FLAGS}")
 set(CMAKE_CXX_FLAGS "-g -std=c++11 -U__STRICT_ANSI__")
 
-aux_source_directory(src SRC_LIST)
-aux_source_directory(src/astro SRC_LIST)
-aux_source_directory(src/nequick SRC_LIST)
-aux_source_directory(src/astro/sgp_sdp_model SRC_LIST)
+aux_source_directory(src EXE_SRC_LIST)
 
-add_executable(${PROJECT_NAME} ${SRC_LIST} "src/nequick/nequick.f" "src/nequick/slqu.f")
+# librsim sources
+aux_source_directory(src/librsim/astro LIBRSIM_SRC_LIST)
+aux_source_directory(src/librsim/nequick LIBRSIM_SRC_LIST)
+aux_source_directory(src/librsim/astro/sgp_sdp_model LIBRSIM_SRC_LIST)
+
+add_library(${LIB_RSIM_NAME} SHARED ${LIBRSIM_SRC_LIST} "src/librsim/nequick/nequick.f" "src/librsim/nequick/slqu.f")
+
+add_executable(${PROJECT_NAME} ${EXE_SRC_LIST})
+
+target_link_libraries(
+    ${PROJECT_NAME}
+    ${LIB_RSIM_NAME}
+)
 
 set(PROJECT_BINARY_DIR ./build)
 set(EXECUTABLE_OUTPUT_PATH ${PROJECT_BINARY_DIR}/bin)
 set(LIBRARY_OUTPUT_PATH ${PROJECT_BINARY_DIR}/lib)
+
+enable_testing()
