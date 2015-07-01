@@ -19,6 +19,9 @@ add_library(${LIB_RSIM_NAME} SHARED ${LIBRSIM_SRC_LIST} "src/librsim/nequick/neq
 
 add_executable(${PROJECT_NAME} ${EXE_SRC_LIST})
 
+file(GLOB DATA_FILES data *)
+file(COPY ${DATA_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 target_link_libraries(
     ${PROJECT_NAME}
     ${LIB_RSIM_NAME}

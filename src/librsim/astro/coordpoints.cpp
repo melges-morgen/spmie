@@ -42,27 +42,27 @@ double GeoPoint::DistanceTo(GeoPoint &other)
 double GeoPoint::GetX()
 {
     double r = altitude_ + astroutils::kEarthRadius;
-    double etta = astroutils::DegToRad(latitude_);
-    double phi = astroutils::DegToRad(longitude_);
+    double phi = astroutils::DegToRad(latitude_);
+    double lambda = astroutils::DegToRad(longitude_);
 
-    return r * cos(etta) * cos(phi);
+    return r * cos(phi) * cos(lambda);
 }
 
 double GeoPoint::GetY()
 {
     double r = altitude_ + astroutils::kEarthRadius;
-    double etta = astroutils::DegToRad(latitude_);
-    double phi = astroutils::DegToRad(longitude_);
+    double phi = astroutils::DegToRad(latitude_);
+    double lambda = astroutils::DegToRad(longitude_);
 
-    return r * cos(etta) * sin(phi);
+    return r * cos(phi) * sin(lambda);
 }
 
 double GeoPoint::GetZ()
 {
     double r = altitude_ + astroutils::kEarthRadius;
-    double etta = astroutils::DegToRad(latitude_);
+    double phi = astroutils::DegToRad(latitude_);
 
-    return r * sin(etta);
+    return r * sin(phi);
 }
 
 OrbitPoint::OrbitPoint()

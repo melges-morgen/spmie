@@ -6,16 +6,17 @@
 #define SPMIE_IMMITATIONDRIVER_H
 
 
-#include <bits/stl_map.h>
+#include <map>
 #include "astro/radarstation.h"
 #include "astro/orbitcalculator.h"
 
 class ImitationDriver
 {
-
+  public:
+    void RunImitation();
   private:
-    std::map<RadarStation> radars_maps_;
-    std::map<Orbit> sattelites_map_;
+    std::map<std::string, RadarStation> radars_maps_;
+    std::map<std::string, Orbit> sattelites_map_;
 };
 
 

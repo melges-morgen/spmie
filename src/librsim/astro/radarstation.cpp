@@ -11,8 +11,9 @@ double RadarStation::DistanceTo(GeoPoint &other)
 
 RadarStation::RadarStation(double latitude, double longitude, double altitude,
                            double view_bisector_zenith, double zenith_angle,
-                           double view_bisector_azimuth, double azimuth_angle)
-        : GeoPoint(latitude, longitude, altitude)
+                           double view_bisector_azimuth, double azimuth_angle,
+                           double frequency)
+        : GeoPoint(latitude, longitude, altitude), frequency_(frequency)
 {
 
 }

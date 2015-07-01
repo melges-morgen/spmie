@@ -3,3 +3,8 @@
 //
 
 #include "TLEReader.h"
+
+std::map<std::string, RadarStation> TLEReader::ReadRadarsFromFile(std::string file)
+{
+    return std::map<std::string, RadarStation>();
+}
