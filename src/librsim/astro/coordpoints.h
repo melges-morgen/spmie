@@ -81,6 +81,8 @@ class OrbitPoint : public GeoPoint
 
     inline double GetInertialZ() { return z_inertial_coord_; }
 
+    inline time_t GetTime() { return timestamp_; }
+
 
   protected:
     /**

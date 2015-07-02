@@ -39,6 +39,8 @@ std::map<int, Orbit> TLEReader::ReadSatellitesFromFile(
 
     }
 
+    input_stream.close();
+
     return produced_map;
 }
 

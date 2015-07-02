@@ -3,19 +3,42 @@
 //
 
 #include "radarstation.h"
-
-double RadarStation::DistanceTo(GeoPoint &other)
-{
-    return GeoPoint::DistanceTo(other);
-}
+#include "../nequick/nequick.h"
 
 RadarStation::RadarStation(double latitude, double longitude, double altitude,
                            double view_bisector_zenith, double zenith_angle,
                            double view_bisector_azimuth, double azimuth_angle,
                            double frequency)
-        : GeoPoint(latitude, longitude, altitude), frequency_(frequency)
+        : GeoPoint(latitude, longitude, altitude),
+          view_bisector_zenith_(view_bisector_zenith),
+          zenith_angle_(zenith_angle),
+          view_bisector_azimuth_(view_bisector_azimuth),
+          azimuth_angle_(azimuth_angle),
+          frequency_(frequency)
 {
 
+}
+
+double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point)
+{
+    if(!IsInSigh(distance_point))
+        return -1;
+
+    time_t orbit_point_time = distance_point.GetTime();
+    struct tm *time_info = gmtime(&orbit_point_time);
+
+    // TODO: Get flux from real parameters
+    double flux = 100;
+    int orbit_year = time_info->tm_year + 1900;
+    double orbit_part_of_day = time_info->tm_hour / 24;
+
+    return DistanceTo(distance_point) + nequick::ElectronContent(
+            GetLatitude(), GetLongitude(), GetAltitude(),
+            distance_point.GetLatitude(), distance_point.GetLongitude(),
+            distance_point.GetAltitude(),
+            flux, orbit_year, time_info->tm_mon,
+            orbit_part_of_day,
+            GetWorkFrequency());
 }
 
 double RadarStation::ZenithAngleTo(GeoPoint &other)
@@ -39,16 +62,16 @@ double RadarStation::ZenithAngleTo(GeoPoint &other)
                        (z_coord_s - z_coord_rs) * z_coord_rs;
 
     double denominator =
-            ::std::sqrt(
+            std::sqrt(
                     std::pow(x_coord_s - x_coord_rs, 2) +
                     std::pow(y_coord_s - y_coord_rs, 2) +
                     std::pow(z_coord_s - z_coord_rs, 2)) *
-            ::std::sqrt(
+            std::sqrt(
                     std::pow(x_coord_rs, 2) +
                     std::pow(y_coord_rs, 2) +
                     std::pow(z_coord_rs, 2));
 
-    return ::std::asin(std::abs(numenator) / denominator);
+    return std::asin(numenator / denominator);
 }
 
 double RadarStation::AzimuthAngleTo(GeoPoint &other)
@@ -77,4 +100,15 @@ double RadarStation::AzimuthAngleTo(GeoPoint &other)
     double z2 = remainder(z + M_PI,  2 * M_PI)- M_PI;
     double anglerad2 = z2 - ((2 * M_PI) * floor((z2 / (2 * M_PI))));
     return anglerad2;
+}
+
+bool RadarStation::IsInSigh(GeoPoint &point)
+{
+    // Check that point in sight
+    if(AzimuthAngleTo(point) - view_bisector_azimuth_ > azimuth_angle_)
+        return false;
+    double zenit_angle = ZenithAngleTo(point);
+    return std::abs(ZenithAngleTo(point) - view_bisector_zenith_) <= zenith_angle_ &&
+            zenit_angle > 0;
+
 }

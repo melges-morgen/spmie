@@ -22,13 +22,21 @@ class RadarStation : public GeoPoint
         return frequency_;
     }
 
-    virtual double DistanceTo(GeoPoint &other) override;
+    bool IsInSigh(GeoPoint &point);
+
+    double ObservedDistanceTo(OrbitPoint &distance_point);
 
     double ZenithAngleTo(GeoPoint &other);
 
     double AzimuthAngleTo(GeoPoint &other);
 
   private:
+    double view_bisector_zenith_;
+    double zenith_angle_;
+
+    double view_bisector_azimuth_;
+    double azimuth_angle_;
+
     double frequency_;
 };
 

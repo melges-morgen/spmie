@@ -5,15 +5,9 @@
 #include <iostream>
 #include <iomanip>
 #include "ImitationDriver.h"
-#include "nequick/nequick.h"
 
 void ImitationDriver::RunImitation()
 {
-    /*double alat1 = 55.930825, along1 = 37.522267, h1 = 0.5,
-        alat2 = 55.926840, along2 = 37.530721, h2 = 300.0, UT = 16.5,
-
-    /*int y = 2015, month = 3;*/
-
     int month = 3;
     double flux = 100.0;
     double deg2rad = M_PI / 180, xpdotp = 1440.0 / M_PI * 2;
@@ -36,50 +30,44 @@ void ImitationDriver::RunImitation()
 
 
 
-//  elsetrec orbit_param;
-//  sgp4init(wgs84, sputnik_number, epoch, xbstar, xecco, xargpo,
-//      xinclo, xmo, xno, xnodeo,
-//      orbit_param);
-
-//  double r[3], gr[3], v[3];
     std::cout << "Minutes after epoch, "
-    << std::setw(8) << "Latitude,\t"
-    << std::setw(8) << "Longitude,\t"
-    << std::setw(8) << "Altitude,\t"
-    << std::setw(8) << "X,\t"
-    << std::setw(8) << "Y,\t"
-    << std::setw(8) << "Z,\t"
-    << std::setw(8) << "Real distance,\t"
-    << std::setw(8) << "Delta D,\t" << std::endl;
-//  double int_part;
-    int year = 2015;//month_ = 06;
-    double part_of_day = 0.5;
-    RadarStation rls(55.930506, 37.522374, 0, 0, 30, 0, 30, 300000000);
-    for (double minute = 340; minute < 360; minute += 1) {
+    << std::setw(8) << "Lat;\t"
+    << std::setw(8) << "Long;\t"
+    << std::setw(8) << "Alt;\t"
+    << std::setw(8) << "Real dist;\t"
+    << std::setw(8) << "Seen dist;\t"
+    << std::setw(8) << "Delta D,\t"
+    << std::setw(8) << "Zenit\t"
+    << std::endl;
+
+    RadarStation rls(55.930506, 37.522374, 0, astroutils::DegToRad(50),
+                     astroutils::DegToRad(30), astroutils::DegToRad(180),
+                     astroutils::DegToRad(90), 300000000);
+
+    for (double minute = 0; minute < 720; minute += 1) {
         // sgp4(wgs84, orbit_param, minute, r, v);
         // ConvertToGeo(r, gr, modf(epoch_day, &int_part) + minute / 1440);
         OrbitPoint point = zarya_orbit.GetTrajectoryPoint(lrint(minute * 60));
+        if(!rls.IsInSigh(point))
+            continue;
 
-        std::cout << minute << " minute after epoch, "
-        << std::setw(8) << point.GetLatitude() << ",\t"
-        << std::setw(8) << point.GetLongitude() << ",\t"
-        << std::setw(8) << point.GetAltitude() << ",\t"
-        << std::setw(8) << point.GetInertialX() << ",\t"
-        << std::setw(8) << point.GetInertialY() << ",\t"
-        << std::setw(8) << point.GetInertialZ() << ",\t"
-        << std::setw(8) << rls.DistanceTo(point) << ",\t"
-        << std::setw(8) << nequick::ElectronContent(
-                rls.GetLatitude(), rls.GetLongitude(), rls.GetAltitude(),
-                point.GetLatitude(), point.GetLongitude(), point.GetAltitude(),
-                flux, year, month, part_of_day, rls.GetWorkFrequency()) << std::endl;
+        std::cout << minute << ";\t"
+        << std::setw(8) << point.GetLatitude() << ";\t"
+        << std::setw(8) << point.GetLongitude() << ";\t"
+        << std::setw(8) << point.GetAltitude() << ";\t"
+        << std::setw(8) << rls.DistanceTo(point) << ";\t"
+        << std::setw(8) << rls.ObservedDistanceTo(point) << ";\t"
+        << std::setw(8) << rls.ObservedDistanceTo(point) - rls.DistanceTo(point) << ";\t"
+        << std::setw(8) << astroutils::RadToDeg(rls.ZenithAngleTo(point))
+        << std::endl;
 //  std::cout << minute << " after epoch, " << asin(r[1]) * 180 / M_PI << ", "
 //    << asin(r[1] / sqrt((1 - pow(r[0], 2)))) * 180 / M_PI << std::endl;
     }
 
-    RadarStation rls1(55.930506, 37.522374, 0, 0, 30, 0, 30, 300000000);
-    RadarStation rls2(56.689763, 37.518270, 10000, 0, 30, 0, 30, 300000000);
-    std::cout << astroutils::RadToDeg(rls1.ZenithAngleTo(rls2)) << std::endl;
-    std::cout << astroutils::RadToDeg(rls1.AzimuthAngleTo(rls2)) << std::endl;
+//    RadarStation rls1(55.930506, 37.522374, 0, 0, 30, 0, 30, 300000000);
+//    RadarStation rls2(56.689763, 37.518270, 10000, 0, 30, 0, 30, 300000000);
+//    std::cout << astroutils::RadToDeg(rls1.ZenithAngleTo(rls2)) << std::endl;
+//    std::cout << astroutils::RadToDeg(rls1.AzimuthAngleTo(rls2)) << std::endl;
 
 //    GeoPoint point2(55.930188, 37.518115, 500);
 //    std::cout << astroutils::RadToDeg(point1.AzimuthAngleTo(point2));
