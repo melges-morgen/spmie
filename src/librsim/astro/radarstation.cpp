@@ -53,5 +53,28 @@ double RadarStation::ZenithAngleTo(GeoPoint &other)
 
 double RadarStation::AzimuthAngleTo(GeoPoint &other)
 {
-    return 0;
+    double latitude1_rad = astroutils::DegToRad(latitude_);
+    double latitude2_rad = astroutils::DegToRad(other.GetLatitude());
+    double longitude1_rad = astroutils::DegToRad(longitude_);
+    double longitude2_rad = astroutils::DegToRad(other.GetLongitude());
+
+    double cl1 = cos(latitude1_rad);
+    double cl2 = cos(latitude2_rad);
+    double sl1 = sin(latitude1_rad);
+    double sl2 = sin(latitude2_rad);
+
+    double delta = longitude2_rad - longitude1_rad;
+    double cdelta = cos(delta);
+    double sdelta = sin(delta);
+
+    double x = (cl1 * sl2) - (sl1 * cl2 * cdelta);
+    double y = sdelta * cl2;
+    double z = atan(-y / x);
+
+    if (x < 0)
+        z = z + M_PI;
+
+    double z2 = remainder(z + M_PI,  2 * M_PI)- M_PI;
+    double anglerad2 = z2 - ((2 * M_PI) * floor((z2 / (2 * M_PI))));
+    return anglerad2;
 }

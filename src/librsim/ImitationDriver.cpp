@@ -76,8 +76,11 @@ void ImitationDriver::RunImitation()
 //    << asin(r[1] / sqrt((1 - pow(r[0], 2)))) * 180 / M_PI << std::endl;
     }
 
-//    RadarStation point1(55.930506, 37.522374, 0, 0, 30, 0, 30);
-//    //RadarStation point2(55.930506, 37.522374, 500, 0);
+    RadarStation rls1(55.930506, 37.522374, 0, 0, 30, 0, 30, 300000000);
+    RadarStation rls2(56.689763, 37.518270, 10000, 0, 30, 0, 30, 300000000);
+    std::cout << astroutils::RadToDeg(rls1.ZenithAngleTo(rls2)) << std::endl;
+    std::cout << astroutils::RadToDeg(rls1.AzimuthAngleTo(rls2)) << std::endl;
+
 //    GeoPoint point2(55.930188, 37.518115, 500);
 //    std::cout << astroutils::RadToDeg(point1.AzimuthAngleTo(point2));
 

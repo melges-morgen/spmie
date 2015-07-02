@@ -8,11 +8,30 @@
 
 #include <map>
 #include "radarstation.h"
+#include "orbitcalculator.h"
+
+class TLEFormatException : std::exception
+{
+  public:
+    TLEFormatException(std::string wrong_string);
+
+    virtual const char *what() const throw();
+
+  private:
+    std::string wrong_tle_string_;
+    std::string error_message;
+};
 
 class TLEReader
 {
   public:
-    std::map<std::string, RadarStation> ReadRadarsFromFile(std::string file);
+    static std::map<int, Orbit> ReadSatellitesFromFile(
+            std::string filename) throw(TLEFormatException);
+
+  protected:
+    static Orbit ParseTLEString(
+            std::string &tle_string_first,
+            std::string &tle_string_second);
 };
 
 

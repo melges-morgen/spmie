@@ -7,18 +7,19 @@ Orbit::Orbit()
 
 }
 
-Orbit::Orbit(int satellite_number, time_t epoch, double drag_coefficent,
+Orbit::Orbit(int satellite_number, time_t epoch, double drag_coefficient,
              double inclination_angle, double ascending_node,
-             double excentrisitet,
-             double pericenter_argument, double mean_anomaly,
+             double eccentricity,
+             double apsis_argument, double mean_anomaly,
              double mean_motion)
         : epoch_time_(epoch)
 {
     // Calculate number of days since astronomic time epoch (1 jan 1950)
     double epoch_days =
             (epoch - astroutils::kAstroEpochStart) / astroutils::kSecondsInDay;
-    last_error_ = sgp4init(wgs84, satellite_number, epoch_days, drag_coefficent,
-                           excentrisitet, pericenter_argument,
+    last_error_ = sgp4init(wgs84, satellite_number, epoch_days,
+                           drag_coefficient,
+                           eccentricity, apsis_argument,
                            inclination_angle, mean_anomaly,
                            mean_motion, ascending_node, orbit_param_);
 }

@@ -7,27 +7,35 @@
 #include "coordpoints.h"
 #include "sgp_sdp_model/sgp4unit.h"
 
+/**
+ * Class represents satellite and his orbit parameters.
+ */
 class Orbit
 {
   public: 
     Orbit();
 
     /**
-     * Construct object represented sattelite orbit. 
+     * Function returns number of satellite
+     */
+    inline int GetSatelliteNumber() { return orbit_param_.satnum; }
+
+    /**
+     * Construct object represented satellite orbit.
      * All values in radians.
-     * @param sattelite_number sattelite number in NORAD database.
+     * @param satellite_number satellite number in NORAD database.
      * @param epoch epoch time in seconds from unix epoch (epoch in timestamp)
-     * @param dgar_coefficent drag coefficent kg/m^2
-     * @param inclination_angle inclination angle to the Earth equator.
+     * @param drag_coefficient drag coefficient kg/m^2
+     * @param inclination_angle inclination angle to the Earth equator in deg.
      * @param ascending_node right ascension of ascending node.
-     * @param excentrisitet orbits excentrisitet.
-     * @param pericenter_argument argument of pericenter.
-     * @param mean_anomaly mean anomaly.
+     * @param eccentricity orbits eccentricity.
+     * @param apsis_argument argument of apsis in deg.
+     * @param mean_anomaly mean anomaly in deg.
      * @param mean_motion mean motion rad/s
      */
-    Orbit(int satellite_number, time_t epoch, double drag_coefficent,
-        double inclination_angle, double ascending_node, double excentrisitet, 
-        double pericenter_argument, double mean_anomaly, double mean_motion);
+    Orbit(int satellite_number, time_t epoch, double drag_coefficient,
+        double inclination_angle, double ascending_node, double eccentricity,
+        double apsis_argument, double mean_anomaly, double mean_motion);
 
     OrbitPoint GetTrajectoryPoint(time_t second_since_epoch);
 
