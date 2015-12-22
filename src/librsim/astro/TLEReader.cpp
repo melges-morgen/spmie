@@ -25,9 +25,9 @@ std::map<int, Orbit> TLEReader::ReadSatellitesFromFile(
             throw TLEFormatException("Unexpected end of file");
 
         // Check that both lines are starts from correct symbol
-        if(first_tle_line[0] == '1')
+        if(first_tle_line[0] != '1')
             throw TLEFormatException(first_tle_line);
-        if(second_tle_line[0] == '2')
+        if(second_tle_line[0] != '2')
             throw TLEFormatException(second_tle_line);
 
         Orbit parsed_satellite =
@@ -65,9 +65,9 @@ Orbit TLEReader::ParseTLEString(std::string &tle_string_first,
     return Orbit(satellite_number,
                 astroutils::ConvertAstroTimeToUnix(
                         (epoch_year - 1950) * 365 + epoch_day),
-
                 drag_coefficient, inclination_angle, ascending_node,
-                eccentricity, apsis_argument, mean_anomaly, mean_motion);
+                eccentricity, apsis_argument, mean_anomaly, mean_motion
+    );
 }
 
 TLEFormatException::TLEFormatException(std::string wrong_string)

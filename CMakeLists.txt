@@ -15,7 +15,7 @@ aux_source_directory(src/librsim/astro LIBRSIM_SRC_LIST)
 aux_source_directory(src/librsim/nequick LIBRSIM_SRC_LIST)
 aux_source_directory(src/librsim/astro/sgp_sdp_model LIBRSIM_SRC_LIST)
 
-add_library(${LIB_RSIM_NAME} SHARED ${LIBRSIM_SRC_LIST} "src/librsim/nequick/nequick.f" "src/librsim/nequick/slqu.f" src/librsim/astro/TLEReader.cpp src/librsim/astro/TLEReader.h src/librsim/ImitationDriver.cpp src/librsim/ImitationDriver.h)
+add_library(${LIB_RSIM_NAME} SHARED ${LIBRSIM_SRC_LIST} "src/librsim/nequick/nequick.f" "src/librsim/nequick/slqu.f" src/librsim/astro/TLEReader.cpp src/librsim/astro/TLEReader.h src/librsim/ImitationDriver.cpp src/librsim/ImitationDriver.h src/librsim/SightReport.cpp src/librsim/SightReport.h src/librsim/SightObject.cpp src/librsim/SightObject.h)
 
 add_executable(${PROJECT_NAME} ${EXE_SRC_LIST})
 

@@ -3,6 +3,8 @@
 
 #include <ctime>
 #include <cmath>
+#include <chrono>
+#include <random>
 
 #ifndef M_PI
 #define M_PI 3.1415
@@ -32,6 +34,15 @@ namespace astroutils
   const int kSecondsInDay = 86164;
 
   /**
+   * Random generator based on time seed
+   */
+  static std::default_random_engine generator(
+      (unsigned long) std::chrono::system_clock::now()
+          .time_since_epoch()
+          .count()
+  );
+
+  /**
    * Convert unix time (seconds since unix epoch)
    * to astronomic time (in days from 1 jan 1950).
    */
@@ -59,6 +70,8 @@ namespace astroutils
   {
       return radians * 180 / M_PI;
   }
+
+  double RandomizeValue(double expected, double sigma);
 }
 
 #endif // ASTROUTILS_H_

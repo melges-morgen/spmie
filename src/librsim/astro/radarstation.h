@@ -13,6 +13,8 @@
 class RadarStation : public GeoPoint
 {
   public:
+    RadarStation();
+
     RadarStation(double latitude, double longitude, double altitude,
                  double view_bisector_zenith, double zenith_angle,
                  double view_bisector_azimuth, double azimuth_angle,
@@ -24,11 +26,11 @@ class RadarStation : public GeoPoint
 
     bool IsInSigh(GeoPoint &point);
 
-    double ObservedDistanceTo(OrbitPoint &distance_point);
+    double ObservedDistanceTo(OrbitPoint &distance_point, double sigma = 0);
 
-    double ZenithAngleTo(GeoPoint &other);
+    double ZenithAngleTo(GeoPoint &other, double sigma = 0);
 
-    double AzimuthAngleTo(GeoPoint &other);
+    double AzimuthAngleTo(GeoPoint &other, double sigma = 0);
 
   private:
     double view_bisector_zenith_;

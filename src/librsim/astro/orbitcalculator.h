@@ -18,7 +18,7 @@ class Orbit
     /**
      * Function returns number of satellite
      */
-    inline int GetSatelliteNumber() { return orbit_param_.satnum; }
+    inline int GetSatelliteNumber() { return (int) orbit_param_.satnum; }
 
     /**
      * Construct object represented satellite orbit.

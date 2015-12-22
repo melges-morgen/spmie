@@ -4,7 +4,6 @@
 
 GeoPoint::GeoPoint()
 {
-
 }
 
 GeoPoint::GeoPoint(double latitude, double longitude, double altitude)

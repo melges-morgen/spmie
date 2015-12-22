@@ -1,14 +1,9 @@
 #include <getopt.h>
-
-#include <cmath>
 #include <iostream>
-#include <iomanip>
 
-#include "librsim/astro/orbitcalculator.h"
-#include "librsim/astro/astroutils.h"
-#include "librsim/nequick/nequick.h"
-#include "librsim/astro/radarstation.h"
+
 #include "librsim/ImitationDriver.h"
+#include "librsim/astro/TLEReader.h"
 
 /*static const char *opt_string = "h";
 
@@ -23,5 +18,18 @@ int main(int argc, char **argv)
 {
     //setlocale(LC_ALL, "Russian");
     ImitationDriver imitationDriver = ImitationDriver();
-    imitationDriver.RunImitation();
+    imitationDriver.RunImitation(10, 1100);
+//    try {
+//        std::map<int, Orbit> orbits =
+//            TLEReader::ReadSatellitesFromFile("tle_test.txt");
+//
+//        for(std::map<int, Orbit>::iterator it = orbits.begin();
+//            it != orbits.end(); ++it)
+//        {
+//            std::cout << it->first << " " << it->second.GetSatelliteNumber();
+//        }
+//    } catch (TLEFormatException &e) {
+//        std::cout << e.what();
+//    }
+    exit(EXIT_SUCCESS);
 }

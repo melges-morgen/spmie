@@ -4,6 +4,9 @@
 
 #include "radarstation.h"
 #include "../nequick/nequick.h"
+RadarStation::RadarStation() : GeoPoint()
+{
+}
 
 RadarStation::RadarStation(double latitude, double longitude, double altitude,
                            double view_bisector_zenith, double zenith_angle,
@@ -19,7 +22,8 @@ RadarStation::RadarStation(double latitude, double longitude, double altitude,
 
 }
 
-double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point)
+double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point,
+                                        double sigma)
 {
     if(!IsInSigh(distance_point))
         return -1;
@@ -32,16 +36,19 @@ double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point)
     int orbit_year = time_info->tm_year + 1900;
     double orbit_part_of_day = time_info->tm_hour / 24;
 
-    return DistanceTo(distance_point) + nequick::ElectronContent(
-            GetLatitude(), GetLongitude(), GetAltitude(),
-            distance_point.GetLatitude(), distance_point.GetLongitude(),
-            distance_point.GetAltitude(),
-            flux, orbit_year, time_info->tm_mon,
-            orbit_part_of_day,
-            GetWorkFrequency());
+    double observed = DistanceTo(distance_point) + nequick::ElectronContent(
+        GetLatitude(), GetLongitude(), GetAltitude(),
+        distance_point.GetLatitude(), distance_point.GetLongitude(),
+        distance_point.GetAltitude(),
+        flux, orbit_year, time_info->tm_mon,
+        orbit_part_of_day,
+        GetWorkFrequency()
+    );
+
+    return astroutils::RandomizeValue(observed, sigma);
 }
 
-double RadarStation::ZenithAngleTo(GeoPoint &other)
+double RadarStation::ZenithAngleTo(GeoPoint &other, double sigma)
 {
     double r_rs = altitude_ + astroutils::kEarthRadius,
             etta_rs = astroutils::DegToRad(latitude_),
@@ -71,10 +78,12 @@ double RadarStation::ZenithAngleTo(GeoPoint &other)
                     std::pow(y_coord_rs, 2) +
                     std::pow(z_coord_rs, 2));
 
-    return std::asin(numenator / denominator);
+    return astroutils::RandomizeValue(
+        std::asin(numenator / denominator), sigma
+    );
 }
 
-double RadarStation::AzimuthAngleTo(GeoPoint &other)
+double RadarStation::AzimuthAngleTo(GeoPoint &other, double sigma)
 {
     double latitude1_rad = astroutils::DegToRad(latitude_);
     double latitude2_rad = astroutils::DegToRad(other.GetLatitude());
@@ -99,7 +108,7 @@ double RadarStation::AzimuthAngleTo(GeoPoint &other)
 
     double z2 = remainder(z + M_PI,  2 * M_PI)- M_PI;
     double anglerad2 = z2 - ((2 * M_PI) * floor((z2 / (2 * M_PI))));
-    return anglerad2;
+    return astroutils::RandomizeValue(anglerad2, sigma);
 }
 
 bool RadarStation::IsInSigh(GeoPoint &point)
@@ -108,7 +117,7 @@ bool RadarStation::IsInSigh(GeoPoint &point)
     if(AzimuthAngleTo(point) - view_bisector_azimuth_ > azimuth_angle_)
         return false;
     double zenit_angle = ZenithAngleTo(point);
-    return std::abs(ZenithAngleTo(point) - view_bisector_zenith_) <= zenith_angle_ &&
-            zenit_angle > 0;
-
+    return std::abs(ZenithAngleTo(point) - view_bisector_zenith_)
+           <= zenith_angle_
+           && zenit_angle > 0;
 }
