@@ -1385,6 +1385,8 @@ int sgp4init
          );
      satrec.error = 0;
 
+     satrec.satnum = satn;
+
      if (rp < 1.0)
        {
 //         printf("# *** satn%d epoch elts sub-orbital ***\n", satn);
