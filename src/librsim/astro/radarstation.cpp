@@ -3,21 +3,23 @@
 //
 
 #include "radarstation.h"
-#include "../nequick/nequick.h"
+#include "librsim/nequick/nequick.h"
 RadarStation::RadarStation() : GeoPoint()
 {
 }
 
-RadarStation::RadarStation(double latitude, double longitude, double altitude,
-                           double view_bisector_zenith, double zenith_angle,
-                           double view_bisector_azimuth, double azimuth_angle,
-                           double frequency)
+RadarStation::RadarStation(std::string radar_name, double latitude, double longitude,
+                           double altitude, double view_bisector_zenith,
+                           double zenith_angle, double view_bisector_azimuth,
+                           double azimuth_angle, double frequency, double local_flux)
         : GeoPoint(latitude, longitude, altitude),
+          name_(radar_name),
           view_bisector_zenith_(view_bisector_zenith),
           zenith_angle_(zenith_angle),
           view_bisector_azimuth_(view_bisector_azimuth),
           azimuth_angle_(azimuth_angle),
-          frequency_(frequency)
+          frequency_(frequency),
+          local_flux_(local_flux)
 {
 
 }
@@ -31,8 +33,6 @@ double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point,
     time_t orbit_point_time = distance_point.GetTime();
     struct tm *time_info = gmtime(&orbit_point_time);
 
-    // TODO: Get flux from real parameters
-    double flux = 100;
     int orbit_year = time_info->tm_year + 1900;
     double orbit_part_of_day = time_info->tm_hour / 24;
 
@@ -40,7 +40,7 @@ double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point,
         GetLatitude(), GetLongitude(), GetAltitude(),
         distance_point.GetLatitude(), distance_point.GetLongitude(),
         distance_point.GetAltitude(),
-        flux, orbit_year, time_info->tm_mon,
+        GetLocalFlux(), orbit_year, time_info->tm_mon,
         orbit_part_of_day,
         GetWorkFrequency()
     );

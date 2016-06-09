@@ -15,13 +15,30 @@ class RadarStation : public GeoPoint
   public:
     RadarStation();
 
-    RadarStation(double latitude, double longitude, double altitude,
-                 double view_bisector_zenith, double zenith_angle,
-                 double view_bisector_azimuth, double azimuth_angle,
-                 double frequency);
+    RadarStation(std::string radar_name, double latitude, double longitude,
+                 double altitude, double view_bisector_zenith,
+                 double zenith_angle, double view_bisector_azimuth,
+                 double azimuth_angle, double frequency, double local_flux);
 
-    inline double GetWorkFrequency() {
+
+    inline const std::string &GetName() const
+    {
+        return name_;
+    }
+
+    inline const double &GetWorkFrequency()
+    {
         return frequency_;
+    }
+
+    inline const double &GetLocalFlux() const
+    {
+        return local_flux_;
+    }
+
+    inline void SetLocalFlux(double local_flux_)
+    {
+        RadarStation::local_flux_ = local_flux_;
     }
 
     bool IsInSigh(GeoPoint &point);
@@ -33,6 +50,8 @@ class RadarStation : public GeoPoint
     double AzimuthAngleTo(GeoPoint &other, double sigma = 0);
 
   private:
+    std::string name_;
+
     double view_bisector_zenith_;
     double zenith_angle_;
 
@@ -40,6 +59,7 @@ class RadarStation : public GeoPoint
     double azimuth_angle_;
 
     double frequency_;
+    double local_flux_;
 };
 
 #endif //SPMIE_RADARSTATION_H

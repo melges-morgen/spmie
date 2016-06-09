@@ -18,18 +18,18 @@ int main(int argc, char **argv)
 {
     //setlocale(LC_ALL, "Russian");
     ImitationDriver imitationDriver = ImitationDriver();
-    imitationDriver.RunImitation(10, 1100);
-//    try {
-//        std::map<int, Orbit> orbits =
-//            TLEReader::ReadSatellitesFromFile("tle_test.txt");
-//
-//        for(std::map<int, Orbit>::iterator it = orbits.begin();
-//            it != orbits.end(); ++it)
-//        {
-//            std::cout << it->first << " " << it->second.GetSatelliteNumber();
-//        }
-//    } catch (TLEFormatException &e) {
-//        std::cout << e.what();
-//    }
+    imitationDriver.RunImitation(10, 1100, 0);
+    try {
+        std::map<int, Orbit> orbits =
+            TLEReader::ReadSatellitesFromFile("tle_test.txt");
+
+        for(std::map<int, Orbit>::iterator it = orbits.begin();
+            it != orbits.end(); ++it)
+        {
+            std::cout << it->first << " " << it->second.GetSatelliteNumber();
+        }
+    } catch (TLEFormatException &e) {
+        std::cout << e.what();
+    }
     exit(EXIT_SUCCESS);
 }

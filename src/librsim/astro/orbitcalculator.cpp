@@ -7,12 +7,14 @@ Orbit::Orbit()
 
 }
 
-Orbit::Orbit(int satellite_number, time_t epoch, double drag_coefficient,
-             double inclination_angle, double ascending_node,
-             double eccentricity,
-             double apsis_argument, double mean_anomaly,
-             double mean_motion)
-        : epoch_time_(epoch)
+Orbit::Orbit(
+        int satellite_number, time_t epoch, double drag_coefficient,
+        double inclination_angle, double ascending_node,
+        double eccentricity,
+        double apsis_argument, double mean_anomaly,
+        double mean_motion,
+        std::string satellite_name
+) : epoch_time_(epoch), satellite_name(satellite_name)
 {
     // Calculate number of days since astronomic time epoch (1 jan 1950)
     double epoch_days =
@@ -24,23 +26,25 @@ Orbit::Orbit(int satellite_number, time_t epoch, double drag_coefficient,
                            mean_motion, ascending_node, orbit_param_);
 }
 
-OrbitPoint Orbit::GetTrajectoryPoint(time_t second_since_epoch)
+OrbitPoint Orbit::GetTrajectoryPoint(time_t target_time)
 {
-    double minute_since_epoch = second_since_epoch / 60;
+    double minute_since_epoch = (target_time - epoch_time_) / 60;
     double r[3], v[3];
     last_error_ = sgp4(wgs84, orbit_param_, minute_since_epoch, r, v);
     if (last_error_ != 0)
         return OrbitPoint();
 
-    return OrbitPoint(r[0], r[1], r[2], epoch_time_ + second_since_epoch);
+    return OrbitPoint(r[0], r[1], r[2], target_time);
 }
 
-std::vector<OrbitPoint> Orbit::GetTrajectoryPoints(time_t start_time,
-                                                   time_t end_time,
-                                                   time_t time_step)
+std::vector<OrbitPoint> Orbit::GetTrajectoryPoints(
+        time_t start_time,
+        time_t end_time,
+        time_t time_step
+)
 {
-    int points_number =
-            (unsigned int) (end_time - start_time) / time_step;
+    unsigned long points_number =
+            (unsigned long) ((end_time - start_time) / time_step);
     std::vector<OrbitPoint> result_vector(points_number);
 
     for (int i = 0; i < points_number; ++i)

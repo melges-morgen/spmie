@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <ctime>
+#include <string>
 
 #include "coordpoints.h"
 #include "sgp_sdp_model/sgp4unit.h"
@@ -21,8 +22,9 @@ class Orbit
     inline int GetSatelliteNumber() { return (int) orbit_param_.satnum; }
 
     /**
-     * Construct object represented satellite orbit.
+     * Construct object representing satellite orbit.
      * All values in radians.
+     *
      * @param satellite_number satellite number in NORAD database.
      * @param epoch epoch time in seconds from unix epoch (epoch in timestamp)
      * @param drag_coefficient drag coefficient kg/m^2
@@ -34,10 +36,18 @@ class Orbit
      * @param mean_motion mean motion rad/s
      */
     Orbit(int satellite_number, time_t epoch, double drag_coefficient,
-        double inclination_angle, double ascending_node, double eccentricity,
-        double apsis_argument, double mean_anomaly, double mean_motion);
+          double inclination_angle, double ascending_node, double eccentricity,
+          double apsis_argument, double mean_anomaly, double mean_motion,
+          std::string satellite_name = "Not provided"
+    );
 
-    OrbitPoint GetTrajectoryPoint(time_t second_since_epoch);
+
+    const std::string &GetSatelliteName() const
+    {
+        return satellite_name;
+    }
+
+    OrbitPoint GetTrajectoryPoint(time_t target_time);
 
     std::vector<OrbitPoint> GetTrajectoryPoints(time_t start_time,
         time_t end_time, time_t time_step);
@@ -52,6 +62,8 @@ class Orbit
      * Epoch time in unix timestamp format
      */
     time_t epoch_time_;
+
+    std::string satellite_name;
 };
 
 #endif // ORBITCALCULATOR_H_
