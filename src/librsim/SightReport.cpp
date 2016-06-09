@@ -4,6 +4,10 @@
 
 #include "SightReport.h"
 
+SightReport::SightReport()
+{
+}
+
 SightReport::SightReport(time_t observation_time, const std::string &radar_name,
                          const std::vector<SightObject> &observed_objects)
     : observation_time_(observation_time),
@@ -17,3 +21,5 @@ SightReport::SightReport(time_t observation_time,
     : SightReport(observation_time, radar_name, std::vector<SightObject>())
 {
 }
+
+

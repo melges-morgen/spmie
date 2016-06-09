@@ -18,6 +18,8 @@
 class SightReport
 {
   public:
+    SightReport();
+
     /**
      * Construct report for specified time and radar.
      */

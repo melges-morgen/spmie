@@ -30,8 +30,9 @@ class TLEReader
 
   protected:
     static Orbit ParseTLEString(
-            std::string &tle_string_first,
-            std::string &tle_string_second);
+            const std::string &tle_string_header,
+            const std::string &tle_string_first,
+            const std::string &tle_string_second);
 };
 
 

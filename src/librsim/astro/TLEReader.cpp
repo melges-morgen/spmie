@@ -5,7 +5,6 @@
 #include <fstream>
 #include <iostream>
 #include <assert.h>
-#include <stdlib.h>
 
 #include "TLEReader.h"
 
@@ -14,29 +13,35 @@ std::map<int, Orbit> TLEReader::ReadSatellitesFromFile(
 {
     std::map<int, Orbit> produced_map;
     std::ifstream input_stream(filename);
-    std::string first_tle_line;
-    while(std::getline(input_stream, first_tle_line))
+    std::string satellite_header;
+    while (std::getline(input_stream, satellite_header))
     {
-        if(!std::isdigit(first_tle_line[0]))
-            continue; // Non digit - it is object name (we don't need it)
+        if (satellite_header.empty())
+            continue;
+
+        std::string first_tle_line;
+        if (satellite_header.length() > 24) // This is not header
+        {
+            first_tle_line = satellite_header; // Possibly it is first data line
+            satellite_header = "No name";
+        }
+        else if (!std::getline(input_stream, first_tle_line))
+            throw TLEFormatException("Unexpected end of file");
 
         std::string second_tle_line;
-        if(!std::getline(input_stream, second_tle_line))
+        if (!std::getline(input_stream, second_tle_line))
             throw TLEFormatException("Unexpected end of file");
 
         // Check that both lines are starts from correct symbol
-        if(first_tle_line[0] != '1')
+        if (first_tle_line[0] != '1')
             throw TLEFormatException(first_tle_line);
-        if(second_tle_line[0] != '2')
+        if (second_tle_line[0] != '2')
             throw TLEFormatException(second_tle_line);
 
-        Orbit parsed_satellite =
-                ParseTLEString(first_tle_line, second_tle_line);
-        produced_map.insert(
-                std::pair<int, Orbit>(
-                        parsed_satellite.GetSatelliteNumber(),
-                        parsed_satellite));
-
+        Orbit parsed_satellite = ParseTLEString(
+                satellite_header, first_tle_line, second_tle_line
+        );
+        produced_map[parsed_satellite.GetSatelliteNumber()] = parsed_satellite;
     }
 
     input_stream.close();
@@ -44,8 +49,9 @@ std::map<int, Orbit> TLEReader::ReadSatellitesFromFile(
     return produced_map;
 }
 
-Orbit TLEReader::ParseTLEString(std::string &tle_string_first,
-                                std::string &tle_string_second)
+Orbit TLEReader::ParseTLEString(const std::string &tle_string_header,
+                                const std::string &tle_string_first,
+                                const std::string &tle_string_second)
 {
     assert(tle_string_first[0] == '1');
     assert(tle_string_second[0] == '2');
@@ -63,10 +69,12 @@ Orbit TLEReader::ParseTLEString(std::string &tle_string_first,
     double mean_motion = atof(tle_string_second.substr(52, 8).c_str());
 
     return Orbit(satellite_number,
-                astroutils::ConvertAstroTimeToUnix(
-                        (epoch_year - 1950) * 365 + epoch_day),
-                drag_coefficient, inclination_angle, ascending_node,
-                eccentricity, apsis_argument, mean_anomaly, mean_motion
+                 astroutils::ConvertAstroTimeToUnix(
+                         (epoch_year - 1950) * 365 + epoch_day),
+                 drag_coefficient, inclination_angle, ascending_node,
+                 eccentricity, apsis_argument, mean_anomaly, mean_motion,
+                 tle_string_header
+
     );
 }
 
