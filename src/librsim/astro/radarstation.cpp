@@ -2,6 +2,7 @@
 // Created by Морген Матвей on 12.06.15.
 //
 
+#include <iostream>
 #include "radarstation.h"
 #include "librsim/nequick/nequick.h"
 RadarStation::RadarStation() : GeoPoint()
@@ -51,6 +52,20 @@ double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point)
 
 double RadarStation::ZenithAngleTo(GeoPoint &other)
 {
+    return astroutils::RandomizeValue(
+        TrueZenithAngleTo(other), sigma_ /10
+    );
+}
+
+double RadarStation::AzimuthAngleTo(GeoPoint &other)
+{
+    return astroutils::RandomizeValue(
+        TrueAzimuthAngleTo(other), sigma_ /10
+    );
+}
+
+double RadarStation::TrueZenithAngleTo(GeoPoint &other)
+{
     double r_rs = altitude_ + astroutils::kEarthRadius,
             etta_rs = astroutils::DegToRad(latitude_),
             phi_rs = astroutils::DegToRad(longitude_);
@@ -79,12 +94,10 @@ double RadarStation::ZenithAngleTo(GeoPoint &other)
                     std::pow(y_coord_rs, 2) +
                     std::pow(z_coord_rs, 2));
 
-    return astroutils::RandomizeValue(
-        std::asin(numenator / denominator), sigma_ /10
-    );
+    return std::asin(numenator / denominator);
 }
 
-double RadarStation::AzimuthAngleTo(GeoPoint &other)
+double RadarStation::TrueAzimuthAngleTo(GeoPoint &other)
 {
     double latitude1_rad = astroutils::DegToRad(latitude_);
     double latitude2_rad = astroutils::DegToRad(other.GetLatitude());
@@ -109,16 +122,20 @@ double RadarStation::AzimuthAngleTo(GeoPoint &other)
 
     double z2 = remainder(z + M_PI,  2 * M_PI)- M_PI;
     double anglerad2 = z2 - ((2 * M_PI) * floor((z2 / (2 * M_PI))));
-    return astroutils::RandomizeValue(anglerad2, sigma_ / 10);
+
+    return anglerad2;
 }
 
 bool RadarStation::IsInSigh(GeoPoint &point)
 {
     // Check that point in sight
-    if(AzimuthAngleTo(point) - view_bisector_azimuth_ > azimuth_angle_)
+    if(TrueAzimuthAngleTo(point) - view_bisector_azimuth_ > azimuth_angle_)
         return false;
-    double zenit_angle = ZenithAngleTo(point);
-    return std::abs(ZenithAngleTo(point) - view_bisector_zenith_)
+    double zenit_angle = TrueZenithAngleTo(point);
+    return std::abs(TrueZenithAngleTo(point) - view_bisector_zenith_)
            <= zenith_angle_
            && zenit_angle > 0;
 }
+
+
+

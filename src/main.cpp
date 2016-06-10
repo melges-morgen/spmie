@@ -1,13 +1,14 @@
 #include <getopt.h>
 #include <iostream>
-#include <strings.h>
+#include <cstring>
 
 
 #include "librsim/ImitationDriver.h"
 #include "librsim/astro/TLEReader.h"
 
 #include <gsl/gsl_rng.h>
-#include <gsl/gsl_randist.h>
+#include <gsl/gsl_math.h>
+#include <gsl/gsl_errno.h>
 #include <gsl/gsl_vector.h>
 #include <gsl/gsl_blas.h>
 #include <gsl/gsl_multifit_nlin.h>
@@ -23,11 +24,13 @@ static const struct option long_opts[] =
     };*/
 //int calculate
 
-double reduce_observation(SightObject &object)
+double delta(SightObject &object1, SightObject &object2)
 {
-    return sqrt(pow(object.GetAzimuthAngle(), 2) +
-                pow(object.GetZenitAngle(), 2) +
-                pow(object.GetDistanceTo(), 2));
+    double d = fabs(object1.GetDistanceTo()) - fabs(object2.GetDistanceTo());
+    double z = fabs(object1.GetZenitAngle()) - fabs(object2.GetZenitAngle());
+    double a = fabs(object1.GetAzimuthAngle()) - fabs(object2.GetAzimuthAngle());
+
+    return d;
 }
 
 struct data {
@@ -36,18 +39,19 @@ struct data {
     time_t end_time;
     time_t epoch;
     RadarStation *radar_station;
-    double *reduced_observations;
+    std::list<SightObject> *original_result_objects;
 };
 
 int simulate_f(const gsl_vector * x, void *data,
              gsl_vector * f)
 {
-    const size_t result_size = ((struct data *) data)->result_size;
     time_t start_time = ((struct data *) data)->start_time;
     time_t end_time = ((struct data *) data)->end_time;
     time_t epoch = ((struct data *) data)->epoch;
     RadarStation *radar = ((struct data *) data)->radar_station;
-    double *reduced_observations = ((struct data *) data)->reduced_observations;
+    std::list<SightObject> *original_result_objects =
+        ((struct data *) data)->original_result_objects;
+    const size_t result_size = original_result_objects->size();
 
     double drag_coefficient = 0;//gsl_vector_get(x, 0);
     double inclination_angle = gsl_vector_get(x, 0);
@@ -77,7 +81,7 @@ int simulate_f(const gsl_vector * x, void *data,
             observation_iterator != observation_report.end();
             ++observation_iterator) {
             if(observation_iterator->GetObservedObjects().size() < 1)
-                return GSL_CONTINUE;
+                continue;
             else
             {
                 auto observe = *observation_iterator;
@@ -86,28 +90,36 @@ int simulate_f(const gsl_vector * x, void *data,
         }
     }
 
+    if(result_objects.size() < 1)
+        return GSL_CONTINUE;
+
     size_t i = 0;
-    for (auto it = result_objects.begin();
-         it != result_objects.end() && i < result_size; ++it, ++i)
+    for (auto it = result_objects.begin(),
+             it_o = original_result_objects->begin();
+         it != result_objects.end()
+         && it_o != original_result_objects->end()
+         && i < result_size; ++it, ++it_o, ++i)
     {
-        double delta = reduce_observation(*it)
-                       - reduced_observations[i];
-        std::cout << "Delta : " << delta << std::endl;
-        gsl_vector_set(f, i, delta);
+        auto current = *it;
+        auto original = *it_o;
+        double d_delta = delta(current, original);
+
+        gsl_vector_set(f, i, d_delta);
     }
 
-    return GSL_SUCCESS;
+    return GSL_CONTINUE;
 }
 
 int simulate(const gsl_vector * x, void *data,
              gsl_vector * f)
 {
-    const size_t result_size = ((struct data *) data)->result_size;
     time_t start_time = ((struct data *) data)->start_time;
     time_t end_time = ((struct data *) data)->end_time;
     time_t epoch = ((struct data *) data)->epoch;
     RadarStation *radar = ((struct data *) data)->radar_station;
-    double *reduced_observations = ((struct data *) data)->reduced_observations;
+    std::list<SightObject> *original_result_objects =
+        ((struct data *) data)->original_result_objects;
+    const size_t result_size = original_result_objects->size();
 
     double drag_coefficient = 0;//gsl_vector_get(x, 0);
     double inclination_angle = gsl_vector_get(x, 0);
@@ -121,6 +133,7 @@ int simulate(const gsl_vector * x, void *data,
                 eccentricity, apsis_argument, mean_anomaly, mean_motion);
 
     radar->SetSigma(0);
+    radar->SetLocalFlux(0);
 
     ImitationDriver driver;
     driver.addRadarStation(*radar);
@@ -146,29 +159,63 @@ int simulate(const gsl_vector * x, void *data,
     }
 
     size_t i = 0;
-    for (auto it = result_objects.begin();
-         it != result_objects.end() && i < result_size; ++it, ++i)
+    for (auto it = result_objects.begin(),
+             it_o = original_result_objects->begin();
+         it != result_objects.end()
+         && it_o != original_result_objects->end()
+         && i < result_size; ++it, ++it_o, ++i)
     {
-        double delta = reduce_observation(*it)
-                       - reduced_observations[i];
-        std::cout << "Delta : " << delta << std::endl;
-        gsl_vector_set(f, i, delta);
+        auto current = *it;
+        auto original = *it_o;
+        double d_delta = delta(current, original);
+        gsl_vector_set(f, i, d_delta);
     }
 
+    return GSL_CONTINUE;
+}
+
+int expb_df (const gsl_vector * x, void *data,
+         gsl_matrix * J)
+{
+    time_t start_time = ((struct data *) data)->start_time;
+    time_t end_time = ((struct data *) data)->end_time;
+    time_t epoch = ((struct data *) data)->epoch;
+    RadarStation *radar = ((struct data *) data)->radar_station;
+    std::list<SightObject> *original_result_objects =
+        ((struct data *) data)->original_result_objects;
+    const size_t result_size = original_result_objects->size();
+
+    double drag_coefficient = 0;//gsl_vector_get(x, 0);
+    double inclination_angle = gsl_vector_get(x, 0);
+    double ascending_node = gsl_vector_get(x, 1);
+    double eccentricity = gsl_vector_get(x, 2);
+    double apsis_argument = gsl_vector_get(x, 3);
+    double mean_anomaly = gsl_vector_get(x, 4);
+    double mean_motion = gsl_vector_get(x, 5);
+
+    size_t i;
+
+    for (i = 0; i < result_size; i++)
+    {
+        /* Jacobian matrix J(i,j) = dfi / dxj, */
+        /* where fi = (Yi - yi)/sigma[i],      */
+        /*       Yi = A * exp(-lambda * i) + b  */
+        /* and the xj are the parameters (A,lambda,b) */
+
+        gsl_matrix_set (J, i, 0, 1/inclination_angle);
+        gsl_matrix_set (J, i, 1, 1/ascending_node);
+        gsl_matrix_set (J, i, 2, 1/eccentricity);
+        gsl_matrix_set (J, i, 3, 1/apsis_argument);
+        gsl_matrix_set (J, i, 4, 1/mean_anomaly);
+        gsl_matrix_set (J, i, 5, 1/mean_motion);
+
+    }
     return GSL_SUCCESS;
 }
 
 Orbit fit_f(std::list<SightObject> true_objects, Orbit true_orbit,
           RadarStation radarStation)
 {
-    double reduced_observation[true_objects.size()];
-    int c = 0;
-    for(auto object = true_objects.begin(); object != true_objects.end();
-        ++object, ++c)
-    {
-        reduced_observation[c] = reduce_observation(*object);
-    }
-
     const size_t n = true_objects.size();
 
     struct data d = {
@@ -177,7 +224,7 @@ Orbit fit_f(std::list<SightObject> true_objects, Orbit true_orbit,
             true_objects.back().GetObservationTime(),
             true_orbit.GetEpochTime(),
             &radarStation,
-            reduced_observation
+            &true_objects
     };
 
     const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
@@ -189,6 +236,8 @@ Orbit fit_f(std::list<SightObject> true_objects, Orbit true_orbit,
     gsl_matrix *J = gsl_matrix_alloc(n, p);
     gsl_matrix *covar = gsl_matrix_alloc (p, p);
     double y[n], weights[n];
+    for(int i = 0; i < n; ++i)
+        weights[i] = 1;
     memset(weights, 0, sizeof(weights));
     gsl_multifit_function_fdf f;
 
@@ -200,7 +249,7 @@ Orbit fit_f(std::list<SightObject> true_objects, Orbit true_orbit,
             true_orbit.GetApsisArgument(),
             true_orbit.GetMeanAnomaly(),
             true_orbit.GetMeanMotion(),
-            100.0
+            0.0
     };
     gsl_vector_view x = gsl_vector_view_array (x_init, p);
     gsl_vector_view w = gsl_vector_view_array(weights, n);
@@ -210,9 +259,9 @@ Orbit fit_f(std::list<SightObject> true_objects, Orbit true_orbit,
     gsl_vector *res_f;
     double chi, chi0;
 
-    const double xtol = 1e-8;
-    const double gtol = 1e-8;
-    const double ftol = 0.0;
+    const double xtol = 10;
+    const double gtol = 10;
+    const double ftol = 10;
 
     gsl_rng_env_setup();
 
@@ -284,14 +333,6 @@ Orbit fit_f(std::list<SightObject> true_objects, Orbit true_orbit,
 Orbit fit(std::list<SightObject> &true_objects, Orbit &true_orbit,
           RadarStation &radarStation)
 {
-    double reduced_observation[true_objects.size()];
-    int c = 0;
-    for(auto object = true_objects.begin(); object != true_objects.end();
-        ++object, ++c)
-    {
-        reduced_observation[c] = reduce_observation(*object);
-    }
-
     const size_t n = true_objects.size();
 
     struct data d = {
@@ -300,7 +341,7 @@ Orbit fit(std::list<SightObject> &true_objects, Orbit &true_orbit,
             true_objects.back().GetObservationTime(),
             true_orbit.GetEpochTime(),
             &radarStation,
-            reduced_observation
+            &true_objects
     };
 
     const gsl_multifit_fdfsolver_type *T = gsl_multifit_fdfsolver_lmsder;
@@ -331,9 +372,9 @@ Orbit fit(std::list<SightObject> &true_objects, Orbit &true_orbit,
     gsl_vector *res_f;
     double chi, chi0;
 
-    const double xtol = 1e-8;
-    const double gtol = 1e-8;
-    const double ftol = 0.0;
+    const double xtol = 10;
+    const double gtol = 10;
+    const double ftol = 10;
 
     gsl_rng_env_setup();
 
@@ -341,7 +382,7 @@ Orbit fit(std::list<SightObject> &true_objects, Orbit &true_orbit,
     r = gsl_rng_alloc (type);
 
     f.f = &simulate;
-    f.df = NULL;   /* set to NULL for finite-difference Jacobian */
+    f.df = &expb_df;   /* set to NULL for finite-difference Jacobian */
     f.n = n;
     f.p = p;
     f.params = &d;
@@ -403,7 +444,7 @@ Orbit fit(std::list<SightObject> &true_objects, Orbit &true_orbit,
 
 int main(int argc, char **argv)
 {
-    setlocale(LC_ALL, "Russian");
+    //setlocale(LC_ALL, "Russian");
     //ImitationDriver imitationDriver = ImitationDriver();
     //imitationDriver.RunImitation(10, 1100, 0);
     try {

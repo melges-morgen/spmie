@@ -57,6 +57,8 @@ std::map<std::string, SightReport> ImitationDriver::GetAllRadarSightReports(
             point_iterator != satellites_positions.end();
             ++point_iterator, ++id)
         {
+            if(observation_time == 1465440129)
+                printf("Bad time");
             double distance = radar.ObservedDistanceTo(*point_iterator);
             double azimuth = radar.AzimuthAngleTo(*point_iterator);
             double zenith = radar.ZenithAngleTo(*point_iterator);
