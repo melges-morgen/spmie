@@ -15,6 +15,8 @@
 class SightObject
 {
   public:
+    SightObject();
+
     SightObject(int object_id, time_t observation_time, double distance_to,
                 double zenith_ange, double azimuth_angle);
 

@@ -101,7 +101,8 @@ OrbitPoint::OrbitPoint(double x_coord, double y_coord, double z_coord,
 }
 
 OrbitPoint::OrbitPoint(const OrbitPoint &other)
-        : x_inertial_coord_(other.x_inertial_coord_),
+        : GeoPoint(other),
+          x_inertial_coord_(other.x_inertial_coord_),
           y_inertial_coord_(other.y_inertial_coord_),
           z_inertial_coord_(other.z_inertial_coord_),
           zenith_(other.zenith_),
@@ -113,6 +114,9 @@ OrbitPoint::OrbitPoint(const OrbitPoint &other)
 
 OrbitPoint &OrbitPoint::operator=(const OrbitPoint &other)
 {
+    longitude_ = other.longitude_;
+    latitude_ = other.latitude_;
+    altitude_ = other.altitude_;
     x_inertial_coord_ = other.x_inertial_coord_;
     y_inertial_coord_ = other.y_inertial_coord_;
     z_inertial_coord_ = other.z_inertial_coord_;

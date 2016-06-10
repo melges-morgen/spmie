@@ -44,14 +44,69 @@ class Orbit
 
     const std::string &GetSatelliteName() const
     {
-        return satellite_name;
+        return satellite_name_;
     }
 
     OrbitPoint GetTrajectoryPoint(time_t target_time);
 
     std::vector<OrbitPoint> GetTrajectoryPoints(time_t start_time,
         time_t end_time, time_t time_step);
-    
+
+
+    const elsetrec &GetOrbitParam_() const
+    {
+        return orbit_param_;
+    }
+
+    int GetLastError_() const
+    {
+        return last_error_;
+    }
+
+    time_t GetEpochTime() const
+    {
+        return epoch_time_;
+    }
+
+    const std::string &GetSatelliteName_() const
+    {
+        return satellite_name_;
+    }
+
+    double GetDragCoefficient() const
+    {
+        return drag_coefficient_;
+    }
+
+    double GetInclinationAngle() const
+    {
+        return inclination_angle_;
+    }
+
+    double GetAscendingNode() const
+    {
+        return ascending_node_;
+    }
+
+    double GetEccentricity() const
+    {
+        return eccentricity_;
+    }
+
+    double GetApsisArgument() const
+    {
+        return apsis_argument_;
+    }
+
+    double GetMeanAnomaly() const
+    {
+        return mean_anomaly_;
+    }
+
+    double GetMeanMotion() const
+    {
+        return mean_motion_;
+    }
 
   private:
     elsetrec orbit_param_;
@@ -63,7 +118,15 @@ class Orbit
      */
     time_t epoch_time_;
 
-    std::string satellite_name;
+    std::string satellite_name_;
+
+    double drag_coefficient_;
+    double inclination_angle_;
+    double ascending_node_;
+    double eccentricity_;
+    double apsis_argument_;
+    double mean_anomaly_;
+    double mean_motion_;
 };
 
 #endif // ORBITCALCULATOR_H_

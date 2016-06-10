@@ -14,7 +14,15 @@ Orbit::Orbit(
         double apsis_argument, double mean_anomaly,
         double mean_motion,
         std::string satellite_name
-) : epoch_time_(epoch), satellite_name(satellite_name)
+) : epoch_time_(epoch),
+    satellite_name_(satellite_name),
+    drag_coefficient_(drag_coefficient),
+    inclination_angle_(inclination_angle),
+    ascending_node_(ascending_node),
+    eccentricity_(eccentricity),
+    apsis_argument_(apsis_argument),
+    mean_anomaly_(mean_anomaly),
+    mean_motion_(mean_motion)
 {
     // Calculate number of days since astronomic time epoch (1 jan 1950)
     double epoch_days =

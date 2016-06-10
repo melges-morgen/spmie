@@ -48,7 +48,7 @@ C The sub-models contained in NeQuick use monthly average values of solar
 C   activity in two forms: average sunspot number R12 and average 10.7 cm
 C   solar radio flux F107. The latter is considered to be the primary
 C   input parameter. A fixed relation between R12 and F107 is used:
-C            F107= 63.7+8.9D-4*R12**2+0.728*R12  ÿ(ITU-R recommendation)
+C            F107= 63.7+8.9D-4*R12**2+0.728*R12  ï¿½(ITU-R recommendation)
 C       or   R12 = sqrt(167273.0+(flx-63.7)*1123.6)-408.99
 C The inclination of the geomagnetic induction vector (Dip) is also used
 C   by NeQuick sub-models. To be consistent with the ITU-R (CCIR) maps
@@ -174,7 +174,7 @@ C
 
       real*8 function NeQuick(h, alat, along, mth, flx, UT)
       implicit real*8 (a-h, o-z)
-      character*11 filenam
+      character*16 filenam
       real*8 Nmax, NeMdgr, M3000
       dimension hm(3),A(3),BB(6)
       dimension pdip(0:38,-1:37)
@@ -189,7 +189,7 @@ C
       if (UT.ge.24.0D0) UT=UT-24.0D0
       along=dmod(along+360.0D0,360.0D0)
       if (jdip.eq.0) then
-         filenam='diplats.asc'
+         filenam='data/diplats.asc'
          call geomagin(filenam,pdip)
          jdip=1
       endif
@@ -397,14 +397,14 @@ C
       implicit real*8 (a-h,o-z)
       real*8 M3000
       dimension FF0(988),xm0(441),F2(13,76,2),FM3(9,49,2)
-      character*10 filena
+      character*15 filena
       integer QM(7),QF(9)
       save
       data QF/11,11,8,4,1,0,0,0,0/,QM/6,7,5,2,1,0,0/
       data montha,monthb,Rga/13,14,-10.0D0/
 
       if (mth.ne.montha) then
-         write(filena,'(4Hccir,I2.2,4H.asc)') mth+10
+         write(filena,'(9Hdata/ccir,I2.2,4H.asc)') mth+10
          open(77,file=filena,status='OLD',form='FORMATTED')
          read(77,'(4E16.8)') F2,FM3
          close(77)
@@ -527,7 +527,7 @@ C
 
       subroutine geomagin(filenam,pdip)
       implicit real*8 (a-h,o-z)
-      character*11 filenam
+      character*16 filenam
       dimension pdip(0:38,-1:37)
       parameter (latp=36,lngp=36,lathp=18,lnghp=18)
 

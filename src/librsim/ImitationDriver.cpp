@@ -4,7 +4,6 @@
 
 #include <iostream>
 #include <iomanip>
-#include<gsl/gsl_sf_bessel.h>
 #include "ImitationDriver.h"
 
 std::map<std::string, std::vector<SightReport>>
@@ -16,7 +15,9 @@ ImitationDriver::RunImitation(
     for(time_t current_time = from; current_time <= to; current_time += step)
     {
         std::map<std::string, SightReport> report =
-                GetSightReport(GetSatellitesPositions(current_time));
+                GetAllRadarSightReports(
+                        GetSatellitesPositions(current_time), current_time
+                );
         for(auto it = report.begin(); it != report.end(); ++it)
         {
             imitation_result[it->first].push_back(it->second);
@@ -33,16 +34,15 @@ ImitationDriver::GetSatellitesPositions(time_t target_time)
     for(auto it = satellites_map_.begin();
         it != satellites_map_.end(); ++it)
     {
-        satellites_positions.push_back(
-                it->second.GetTrajectoryPoint(target_time)
-        );
+        auto point = it->second.GetTrajectoryPoint(target_time);
+        satellites_positions.push_front(point);
     }
 
     return satellites_positions;
 }
 
-std::map<std::string, SightReport> ImitationDriver::GetSightReport(
-        std::list<OrbitPoint> &&satellites_positions)
+std::map<std::string, SightReport> ImitationDriver::GetAllRadarSightReports(
+        std::list<OrbitPoint> &&satellites_positions, time_t observation_time)
 {
     std::map<std::string, SightReport> all_radar_report;
     for(auto radar_iterator =
@@ -50,7 +50,7 @@ std::map<std::string, SightReport> ImitationDriver::GetSightReport(
         radar_iterator != radars_maps_.end(); ++radar_iterator)
     {
         RadarStation radar = radar_iterator->second;
-        SightReport sight_report(0, radar.GetName());
+        SightReport sight_report(observation_time, radar.GetName());
 
         int id = 0;
         for(auto point_iterator = satellites_positions.begin();
@@ -61,9 +61,12 @@ std::map<std::string, SightReport> ImitationDriver::GetSightReport(
             double azimuth = radar.AzimuthAngleTo(*point_iterator);
             double zenith = radar.ZenithAngleTo(*point_iterator);
 
-            SightObject observed_object(id, point_iterator->GetTime(),
-                                        distance, zenith, azimuth);
-            sight_report.AddObservedObject(observed_object);
+            if(distance != -1)
+            {
+                SightObject observed_object(id, observation_time,
+                                            distance, zenith, azimuth);
+                sight_report.AddObservedObject(observed_object);
+            }
         }
 
         all_radar_report[radar.GetName()] = sight_report;

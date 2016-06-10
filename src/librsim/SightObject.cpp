@@ -4,6 +4,16 @@
 
 #include "SightObject.h"
 
+SightObject::SightObject()
+        : object_id_(-1),
+          observation_time_(-1),
+          distance_to_(-1),
+          zenith_angle_(-1),
+          azimuth_angle_(-1)
+{
+
+}
+
 SightObject::SightObject(int object_id, time_t observation_time,
                          double distance_to, double zenith_ange,
                          double azimuth_angle)
@@ -19,3 +29,5 @@ bool SightObject::operator<(const SightObject &right)
 {
     return this->object_id_ < right.object_id_;
 }
+
+

@@ -11,7 +11,8 @@ RadarStation::RadarStation() : GeoPoint()
 RadarStation::RadarStation(std::string radar_name, double latitude, double longitude,
                            double altitude, double view_bisector_zenith,
                            double zenith_angle, double view_bisector_azimuth,
-                           double azimuth_angle, double frequency, double local_flux)
+                           double azimuth_angle, double frequency,
+                           double local_flux, double sigma)
         : GeoPoint(latitude, longitude, altitude),
           name_(radar_name),
           view_bisector_zenith_(view_bisector_zenith),
@@ -19,13 +20,13 @@ RadarStation::RadarStation(std::string radar_name, double latitude, double longi
           view_bisector_azimuth_(view_bisector_azimuth),
           azimuth_angle_(azimuth_angle),
           frequency_(frequency),
-          local_flux_(local_flux)
+          local_flux_(local_flux),
+          sigma_(sigma)
 {
 
 }
 
-double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point,
-                                        double sigma)
+double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point)
 {
     if(!IsInSigh(distance_point))
         return -1;
@@ -45,10 +46,10 @@ double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point,
         GetWorkFrequency()
     );
 
-    return astroutils::RandomizeValue(observed, sigma);
+    return astroutils::RandomizeValue(observed, sigma_);
 }
 
-double RadarStation::ZenithAngleTo(GeoPoint &other, double sigma)
+double RadarStation::ZenithAngleTo(GeoPoint &other)
 {
     double r_rs = altitude_ + astroutils::kEarthRadius,
             etta_rs = astroutils::DegToRad(latitude_),
@@ -79,11 +80,11 @@ double RadarStation::ZenithAngleTo(GeoPoint &other, double sigma)
                     std::pow(z_coord_rs, 2));
 
     return astroutils::RandomizeValue(
-        std::asin(numenator / denominator), sigma
+        std::asin(numenator / denominator), sigma_ /10
     );
 }
 
-double RadarStation::AzimuthAngleTo(GeoPoint &other, double sigma)
+double RadarStation::AzimuthAngleTo(GeoPoint &other)
 {
     double latitude1_rad = astroutils::DegToRad(latitude_);
     double latitude2_rad = astroutils::DegToRad(other.GetLatitude());
@@ -108,7 +109,7 @@ double RadarStation::AzimuthAngleTo(GeoPoint &other, double sigma)
 
     double z2 = remainder(z + M_PI,  2 * M_PI)- M_PI;
     double anglerad2 = z2 - ((2 * M_PI) * floor((z2 / (2 * M_PI))));
-    return astroutils::RandomizeValue(anglerad2, sigma);
+    return astroutils::RandomizeValue(anglerad2, sigma_ / 10);
 }
 
 bool RadarStation::IsInSigh(GeoPoint &point)

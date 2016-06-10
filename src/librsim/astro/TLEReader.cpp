@@ -4,7 +4,9 @@
 
 #include <fstream>
 #include <iostream>
+
 #include <assert.h>
+#include <string.h>
 
 #include "TLEReader.h"
 
@@ -13,6 +15,9 @@ std::map<int, Orbit> TLEReader::ReadSatellitesFromFile(
 {
     std::map<int, Orbit> produced_map;
     std::ifstream input_stream(filename);
+    if(input_stream.fail())
+        throw std::runtime_error(strerror(errno));
+
     std::string satellite_header;
     while (std::getline(input_stream, satellite_header))
     {
@@ -59,14 +64,22 @@ Orbit TLEReader::ParseTLEString(const std::string &tle_string_header,
     int satellite_number = atoi(tle_string_first.substr(2, 5).c_str());
     int epoch_year = atoi(tle_string_first.substr(18, 2).c_str()) + 2000;
     double epoch_day = atof(tle_string_first.substr(20, 12).c_str());
-    double drag_coefficient = atof(tle_string_first.substr(53, 8).c_str());
+    double drag_coefficient = 0;//atof(tle_string_first.substr(53, 8).c_str());
 
-    double inclination_angle = atof(tle_string_second.substr(8, 8).c_str());
-    double ascending_node = atof(tle_string_second.substr(17, 8).c_str());
-    double eccentricity = atof(tle_string_second.substr(26, 7).c_str());
+    double inclination_angle = astroutils::DegToRad(
+            atof(tle_string_second.substr(8, 8).c_str())
+    );
+    double ascending_node = astroutils::DegToRad(
+            atof(tle_string_second.substr(17, 8).c_str())
+    );
+    double eccentricity = atof(tle_string_second.substr(26, 7).c_str())
+                          / 10000000;
     double apsis_argument = atof(tle_string_second.substr(34, 8).c_str());
-    double mean_anomaly = atof(tle_string_second.substr(43, 8).c_str());
-    double mean_motion = atof(tle_string_second.substr(52, 8).c_str());
+    double mean_anomaly = astroutils::DegToRad(
+            atof(tle_string_second.substr(43, 8).c_str())
+    );
+    double mean_motion = atof(tle_string_second.substr(52, 11).c_str())
+                         / (1440.0 / M_PI * 2);
 
     return Orbit(satellite_number,
                  astroutils::ConvertAstroTimeToUnix(

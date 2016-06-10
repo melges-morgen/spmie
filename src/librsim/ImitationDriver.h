@@ -20,16 +20,14 @@ class ImitationDriver
         RunImitation(
                 time_t from_time, time_t to_time, time_t step = 15);
 
-    inline void addRadarStation(std::string &name,
-                                RadarStation &radar_station)
+    inline void addRadarStation(RadarStation &radar_station)
     {
-        radars_maps_[name] = radar_station;
+        radars_maps_[radar_station.GetName()] = radar_station;
     }
     
-    inline void addSatellite(int satellite_number,
-                             Orbit &satellite_orbit)
+    inline void addSatellite(Orbit &satellite_orbit)
     {
-        satellites_map_[satellite_number] = satellite_orbit;
+        satellites_map_[satellite_orbit.GetSatelliteNumber()] = satellite_orbit;
     }
     
   private:
@@ -38,8 +36,8 @@ class ImitationDriver
 
     std::list<OrbitPoint> GetSatellitesPositions(time_t target_time);
 
-    std::map<std::string, SightReport> GetSightReport(
-            std::list<OrbitPoint> &&satellites_positions);
+    std::map<std::string, SightReport> GetAllRadarSightReports(
+            std::list<OrbitPoint> &&satellites_positions, time_t observation_time);
 };
 
 
