@@ -11,7 +11,7 @@
 
 #include "astro/radarstation.h"
 #include "astro/orbitcalculator.h"
-#include "SightReport.h"
+#include "librsim/astro/SightReport.h"
 
 class ImitationDriver
 {
