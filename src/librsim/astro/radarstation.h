@@ -19,7 +19,7 @@ class RadarStation : public GeoPoint
                  double altitude, double view_bisector_zenith,
                  double zenith_angle, double view_bisector_azimuth,
                  double azimuth_angle, double frequency, double local_flux,
-                 double sigma = 0.05
+                 double sigma = 0.005
     );
 
 
@@ -57,7 +57,6 @@ class RadarStation : public GeoPoint
 
     double AzimuthAngleTo(GeoPoint &other);
 
-  protected:
     double TrueZenithAngleTo(GeoPoint &other);
 
     double TrueAzimuthAngleTo(GeoPoint &other);

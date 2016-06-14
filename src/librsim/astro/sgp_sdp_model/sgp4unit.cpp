@@ -1644,7 +1644,7 @@ int sgp4init
 
 int sgp4
      (
-       gravconsttype whichconst, elsetrec& satrec,  double tsince,
+       gravconsttype whichconst, elsetrec satrec,  double tsince,
        double r[3],  double v[3]
      )
 {

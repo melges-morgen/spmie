@@ -7,27 +7,45 @@ Orbit::Orbit()
 
 }
 
+Orbit::Orbit(elsetrec orbit_param, elsetrec raw_orbit_param,
+             std::string satellite_name)
+        : orbit_param_(orbit_param),
+          raw_orbit_param_(raw_orbit_param),
+          satellite_name_(satellite_name),
+          drag_coefficient_(orbit_param.bstar),
+          inclination_angle_(orbit_param.inclo),
+          ascending_node_(orbit_param.nodeo),
+          eccentricity_(orbit_param.ecco),
+          apsis_argument_(orbit_param.argpo),
+          mean_anomaly_(orbit_param.mo),
+          mean_motion_(orbit_param.no)
+{
+     epoch_time_ = (time_t)
+             astroutils::ConvertAstroTimeToUnix(
+                     (orbit_param.epochyr + 2000 - 1950) * 365
+                     + orbit_param.epochdays);
+}
+
 Orbit::Orbit(
-        int satellite_number, time_t epoch, double drag_coefficient,
+        int satellite_number, Orbit &other_orbit, double drag_coefficient,
         double inclination_angle, double ascending_node,
         double eccentricity,
         double apsis_argument, double mean_anomaly,
         double mean_motion,
-        std::string satellite_name
-) : epoch_time_(epoch),
-    satellite_name_(satellite_name),
-    drag_coefficient_(drag_coefficient),
-    inclination_angle_(inclination_angle),
-    ascending_node_(ascending_node),
-    eccentricity_(eccentricity),
-    apsis_argument_(apsis_argument),
-    mean_anomaly_(mean_anomaly),
-    mean_motion_(mean_motion)
+        std::string satellite_name)
+        : satellite_name_(satellite_name),
+          drag_coefficient_(drag_coefficient),
+          inclination_angle_(inclination_angle),
+          ascending_node_(ascending_node),
+          eccentricity_(eccentricity),
+          apsis_argument_(apsis_argument),
+          mean_anomaly_(mean_anomaly),
+          mean_motion_(mean_motion)
 {
-    // Calculate number of days since astronomic time epoch (1 jan 1950)
-    double epoch_days =
-            (epoch - astroutils::kAstroEpochStart) / astroutils::kSecondsInDay;
-    last_error_ = sgp4init(wgs84, satellite_number, epoch_days,
+    orbit_param_ = other_orbit.raw_orbit_param_;
+    raw_orbit_param_ = other_orbit.raw_orbit_param_;
+    last_error_ = sgp4init(wgs84, satellite_number,
+                           other_orbit.GetOriginalEpochValue(),
                            drag_coefficient,
                            eccentricity, apsis_argument,
                            inclination_angle, mean_anomaly,
@@ -42,7 +60,7 @@ OrbitPoint Orbit::GetTrajectoryPoint(time_t target_time)
     if (last_error_ != 0)
         return OrbitPoint();
 
-    return OrbitPoint(r[0], r[1], r[2], target_time);
+    return OrbitPoint(r[0] * 1000, r[1] * 1000, r[2] * 1000, target_time);
 }
 
 std::vector<OrbitPoint> Orbit::GetTrajectoryPoints(
@@ -60,4 +78,13 @@ std::vector<OrbitPoint> Orbit::GetTrajectoryPoints(
 
     return result_vector;
 }
+
+void Orbit::SetOriginalEpochValue(double original_epoch_value)
+{
+    original_epoch_value_ = original_epoch_value;
+}
+
+
+
+
 

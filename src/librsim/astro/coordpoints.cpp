@@ -78,15 +78,15 @@ OrbitPoint::OrbitPoint(double x_coord, double y_coord, double z_coord,
           timestamp_(timestamp),
           invalid_(false)
 {
-    double r_v = sqrt(pow(x_inertial_coord_, 2) + pow(y_inertial_coord_, 2) + pow(
-            z_inertial_coord_, 2));
+    double r_v = sqrt(pow(x_inertial_coord_, 2) + pow(y_inertial_coord_, 2)
+                      + pow(z_inertial_coord_, 2));
     earth_rotated_angle_ =
             astroutils::kEarthRotationSpeed *
             astroutils::SecondsSinceMidnight(timestamp_);
 
     zenith_ = asin(z_inertial_coord_ / r_v);
     azimuth_ = remainder(atan(y_inertial_coord_ / x_inertial_coord_), 2 * M_PI);
-    r_length_ = r_v * 1000;
+    r_length_ = r_v;// * 1000;
 
     latitude_ = zenith_ * 180 / M_PI;
     longitude_ = (azimuth_ - earth_rotated_angle_) * 180 / M_PI;

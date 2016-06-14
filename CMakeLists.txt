@@ -32,9 +32,13 @@ file(COPY ${DATA_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 file(COPY ${TEST_DATA_FILES} DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 target_link_libraries(
-        ${PROJECT_NAME}
         ${LIB_RSIM_NAME}
         gsl gslcblas m
+)
+
+target_link_libraries(
+        ${PROJECT_NAME}
+        ${LIB_RSIM_NAME}
 )
 
 set(PROJECT_BINARY_DIR ./build)

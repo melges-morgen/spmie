@@ -16,10 +16,8 @@ class Orbit
   public: 
     Orbit();
 
-    /**
-     * Function returns number of satellite
-     */
-    inline int GetSatelliteNumber() { return (int) orbit_param_.satnum; }
+    Orbit(elsetrec orbit_param, elsetrec raw_orbit_param,
+              std::string satellite_name);
 
     /**
      * Construct object representing satellite orbit.
@@ -35,12 +33,17 @@ class Orbit
      * @param mean_anomaly mean anomaly in deg.
      * @param mean_motion mean motion rad/s
      */
-    Orbit(int satellite_number, time_t epoch, double drag_coefficient,
-          double inclination_angle, double ascending_node, double eccentricity,
-          double apsis_argument, double mean_anomaly, double mean_motion,
-          std::string satellite_name = "Not provided"
-    );
+    Orbit(int satellite_number, Orbit &other_orbit, double drag_coefficient,
+          double inclination_angle, double ascending_node,
+          double eccentricity,
+          double apsis_argument, double mean_anomaly,
+          double mean_motion,
+          std::string satellite_name = "Not provided");
 
+    /**
+     * Function returns number of satellite
+     */
+    inline int GetSatelliteNumber() { return (int) orbit_param_.satnum; }
 
     const std::string &GetSatelliteName() const
     {
@@ -51,12 +54,6 @@ class Orbit
 
     std::vector<OrbitPoint> GetTrajectoryPoints(time_t start_time,
         time_t end_time, time_t time_step);
-
-
-    const elsetrec &GetOrbitParam_() const
-    {
-        return orbit_param_;
-    }
 
     int GetLastError_() const
     {
@@ -108,8 +105,26 @@ class Orbit
         return mean_motion_;
     }
 
+    inline double GetOriginalEpochValue()
+    {
+        return original_epoch_value_;
+    }
+
+    inline elsetrec GetOrbitParam()
+    {
+        return orbit_param_;
+    }
+
+    inline void SetEpoch(time_t epoch)
+    {
+        epoch_time_ = epoch;
+    }
+
+    void SetOriginalEpochValue(double original_epoch_value);
+
   private:
     elsetrec orbit_param_;
+    elsetrec raw_orbit_param_;
 
     int last_error_;
 
@@ -127,6 +142,7 @@ class Orbit
     double apsis_argument_;
     double mean_anomaly_;
     double mean_motion_;
+    double original_epoch_value_;
 };
 
 #endif // ORBITCALCULATOR_H_

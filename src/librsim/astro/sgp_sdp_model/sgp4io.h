@@ -31,7 +31,7 @@
 
 // ------------------------- function declarations -------------------------
 
-void twoline2rv
+double twoline2rv
      (
        char[130], char[130],
        char, char,

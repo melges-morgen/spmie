@@ -53,14 +53,14 @@ double RadarStation::ObservedDistanceTo(OrbitPoint &distance_point)
 double RadarStation::ZenithAngleTo(GeoPoint &other)
 {
     return astroutils::RandomizeValue(
-        TrueZenithAngleTo(other), sigma_ /10
+        TrueZenithAngleTo(other), sigma_
     );
 }
 
 double RadarStation::AzimuthAngleTo(GeoPoint &other)
 {
     return astroutils::RandomizeValue(
-        TrueAzimuthAngleTo(other), sigma_ /10
+        TrueAzimuthAngleTo(other), sigma_
     );
 }
 

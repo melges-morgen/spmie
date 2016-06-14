@@ -68,7 +68,7 @@
 *    vallado, crawford, hujsak, kelso  2006
   --------------------------------------------------------------------------- */
 
-void twoline2rv
+double twoline2rv
      (
       char      longstr1[130], char longstr2[130],
       char      typerun,  char typeinput,
@@ -254,9 +254,8 @@ void twoline2rv
          }
 
        // ---------------- initialize the orbit at sgp4epoch -------------------
-       sgp4init( whichconst, satrec.satnum, satrec.jdsatepoch-2433281.5, satrec.bstar,
-                 satrec.ecco, satrec.argpo, satrec.inclo, satrec.mo, satrec.no,
-                 satrec.nodeo, satrec);
+
+       return satrec.jdsatepoch-2433281.5;
     } // end twoline2rv
 
 
