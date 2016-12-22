@@ -37,7 +37,8 @@ class ImitationDriver
     std::list<OrbitPoint> GetSatellitesPositions(time_t target_time);
 
     std::map<std::string, SightReport> GetAllRadarSightReports(
-            std::list<OrbitPoint> &&satellites_positions, time_t observation_time);
+            std::list<OrbitPoint> &&satellites_positions,
+            time_t observation_time);
 };
 
 

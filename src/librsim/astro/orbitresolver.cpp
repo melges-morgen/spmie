@@ -42,7 +42,8 @@ int orbitresolver::CalculationFunctionWithFlux(const gsl_vector * x, void *data,
     orbit.SetEpoch(parameters->real_orbit->GetEpochTime());
 
     radar->SetSigma(0);
-    radar->SetLocalFlux(gsl_vector_get(x, 7));
+//    radar->SetLocalFlux(gsl_vector_get(x, 7));
+    radar->SetLocalFlux(parameters->observer->GetLocalFlux());
 
     ImitationDriver driver;
     driver.addRadarStation(*radar);
@@ -73,8 +74,8 @@ int orbitresolver::CalculationFunctionWithFlux(const gsl_vector * x, void *data,
          it != result_objects.end() && it2 != objects_observations->end()
          && i < result_size; ++it, ++it2, ++i)
     {
-        double delta = it->GetDistanceTo()
-                       - it2->GetDistanceTo();
+        double delta = pow(it->GetDistanceTo()
+                       - it2->GetDistanceTo(), 2);
         //std::cout << "Delta : " << delta << std::endl;
         gsl_vector_set(f, i, delta);
     }
@@ -166,6 +167,7 @@ Orbit orbitresolver::RestoreOrbitConsideringFlux(
         fprintf (stderr, "Apsis Argument Node      = %.5f\n", FIT(4));
         fprintf (stderr, "Mean Anomaly      = %.5f\n", FIT(5));
         fprintf (stderr, "Mean Motion      = %.5f\n", FIT(6));
+        fprintf (stderr, "Flux      = %.5f\n", FIT(7));
     }
 
     fprintf (stderr, "status = %s\n", gsl_strerror (status));
@@ -243,8 +245,8 @@ int orbitresolver::CalculationFunctionNoFlux(const gsl_vector * x, void *data,
          it != result_objects.end() && it2 != objects_observations->end()
          && i < result_size; ++it, ++it2, ++i)
     {
-        double delta = it->GetDistanceTo()
-                       - it2->GetDistanceTo();
+        double delta = pow(it->GetDistanceTo()
+                       - it2->GetDistanceTo(), 2);
         //std::cout << "Delta : " << delta << std::endl;
         gsl_vector_set(f, i, delta);
     }

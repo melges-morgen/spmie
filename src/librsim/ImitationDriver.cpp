@@ -16,7 +16,8 @@ ImitationDriver::RunImitation(
     {
         std::map<std::string, SightReport> report =
                 GetAllRadarSightReports(
-                        GetSatellitesPositions(current_time), current_time
+                        GetSatellitesPositions(current_time),
+                        current_time
                 );
         for(auto it = report.begin(); it != report.end(); ++it)
         {

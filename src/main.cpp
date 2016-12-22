@@ -1,6 +1,7 @@
 #include <getopt.h>
 #include <iostream>
 #include <cstring>
+#include <algorithm>
 #include <librsim/astro/orbitresolver.h>
 
 
@@ -30,14 +31,47 @@ double get_discrepancy(Orbit &real, Orbit &other)
     );
 }
 
-void print_difference(Orbit &real, Orbit &with_flux, Orbit without_flux,
-                      double noise, double flux)
+double mean_distance(Orbit &real, Orbit &other,
+                     std::vector<time_t> &sight_times)
 {
-    double discrepancy_flux = get_discrepancy(real, with_flux);
-    double discrepancy_no_flux = get_discrepancy(real, without_flux);
+    double sum = 0;
+    for(auto time_iterator = sight_times.begin();
+        time_iterator != sight_times.end();
+        ++time_iterator)
+    {
+        time_t time = *time_iterator;
+        GeoPoint other_point = other.GetTrajectoryPoint(time);
+        sum += real.GetTrajectoryPoint(time)
+                .DistanceTo(other_point);
+    }
 
-    printf("0,%f,%f,%f,flux\n", noise, flux, discrepancy_flux);
-    printf("0,%f,%f,%f,no_flux\n", noise, flux, discrepancy_no_flux);
+    return sum / sight_times.size();
+}
+
+void print_delta(Orbit &real, Orbit &other, std::vector<time_t> &sight_times)
+{
+    printf("%f,%f,%f,%f,%f,%f,%f,%f,",
+           real.GetDragCoefficient() - other.GetDragCoefficient(),
+           real.GetInclinationAngle() - other.GetInclinationAngle(),
+           real.GetAscendingNode() - other.GetAscendingNode(),
+           real.GetEccentricity() - other.GetEccentricity(),
+           real.GetApsisArgument() - other.GetApsisArgument(),
+           real.GetMeanAnomaly() - other.GetMeanAnomaly(),
+           real.GetMeanMotion() - other.GetMeanMotion(),
+           mean_distance(real, other, sight_times)
+    );
+}
+
+void print_difference(Orbit &real, Orbit with_flux, Orbit without_flux, double noise,
+                      double flux, std::vector<time_t> &sight_times)
+{
+    //printf("0,");
+    print_delta(real, with_flux, sight_times);
+    printf("%f,%f,flux\n", noise, flux);
+
+    //printf("0,");
+    print_delta(real, without_flux, sight_times);
+    printf("%f,%f,no_flux\n", noise, flux);
 }
 
 void run_imitation(Orbit &target_orbit, double target_sigma, double target_flux)
@@ -91,8 +125,16 @@ void run_imitation(Orbit &target_orbit, double target_sigma, double target_flux)
             orbitresolver::RestoreOrbitNoFlux(
                     target_orbit, result_objects, radar);
 
+    std::vector<time_t> observation_times(result_objects.size());
+    std::transform(result_objects.begin(), result_objects.end(),
+                   std::back_inserter(observation_times),
+                   [](SightObject &object) {
+                       return object.GetObservationTime();
+                   }
+    );
+
     print_difference(target_orbit, restored_orbit, restored_orbit_no_flux,
-                     target_sigma, target_flux);
+                     target_sigma, target_flux, observation_times);
 }
 
 int main(int argc, char **argv)
@@ -100,8 +142,10 @@ int main(int argc, char **argv)
     try {
         std::map<int, Orbit> orbits =
             TLEReader::ReadSatellitesFromFile("data/visual.tle");
-        printf("d,noise,flux,discrepancy,type\n");
-        for(double noise = 0.005; noise < 0.3; noise += 0.007)
+        printf("DragCoefficient,InclinationAngle,AscendingNode,Eccentricity,"
+                       "ApsisArgument,MeanAnomaly,MeanMotion,MeanDistance,"
+                       "noise,flux,type\n");
+        for(double noise = 0.005; noise < 0.3; noise += 0.021)
             run_imitation(orbits[25544], noise, 178);
 
     } catch (TLEFormatException &e) {
