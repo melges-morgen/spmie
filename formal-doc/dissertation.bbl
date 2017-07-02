@@ -1,0 +1,50 @@
+\begin{thebibliography}{1}
+\def\selectlanguageifdefined#1{
+\expandafter\ifx\csname date#1\endcsname\relax
+\else\language\csname l@#1\endcsname\fi}
+\ifx\undefined\url\def\url#1{{\small #1}}\else\fi
+\ifx\undefined\BibUrl\def\BibUrl#1{\url{#1}}\else\fi
+\ifx\undefined\BibAnnote\long\def\BibAnnote#1{}\else\fi
+\ifx\undefined\BibEmph\def\BibEmph#1{\emph{#1}}\else\fi
+
+\bibitem{Kravcov}
+\selectlanguageifdefined{russian}
+\BibEmph{О.А.Кравцов~З.И.Фейзулин~А.Г.Виноградов}.
+  Прохождение радиоволн через атмосферу
+  Земли. ---
+\newblock Москва: Радио и связь, 1983. ---
+\newblock 224~{с.}
+
+\bibitem{NeQuick}
+\selectlanguageifdefined{english}
+\BibEmph{S.~B.Nava~P.Coisson}. A new version of the Nequick ionosphere electron
+  density model~// \BibEmph{J. Atmos.} ---
+\newblock 2008. ---
+\newblock Vol. Solar-Terr.
+
+\bibitem{Gackovskiy}
+\selectlanguageifdefined{russian}
+\BibEmph{В.Д~Гацковский А.В. Курикша А.А.
+  Лагуткин В.Н. Лукьянов А.П. Хуторовский
+  З.Н.~Шилин}. Анализ методов компенсации
+  ионосферных ошибок определения
+  параметров движения КО по данным
+  радиолокационных наблюдений. ---
+\newblock Москва: МАК Вымпел, 2015. ---
+\newblock 8~{с.}
+
+\bibitem{Norad}
+\selectlanguageifdefined{english}
+\BibEmph{Felix R.~Hoots~Ronald L.~Roehrich}. MODELS FOR PROPAGATION OF NORAD
+  ELEMENT SETS~// \BibEmph{Aerospace Defense Command United States Air Force}.
+  ---
+\newblock 1980. --- December. ---
+\newblock Vol.~3.
+
+\bibitem{Bakulev}
+\selectlanguageifdefined{russian}
+\BibEmph{П.А.~Бакулев}. Радиолокационные
+  системы: Учебник для вузов. ---
+\newblock Москва: Радиотехника, 2004.
+
+\end{thebibliography}

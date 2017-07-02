@@ -1,0 +1,20 @@
+\begin{tikzpicture}[node distance = 2cm, auto]
+    % Таблица
+    \draw[step=0.5cm, gray, very thin] (-1, 0) grid (16.5, 1); % Строка 5
+    \draw[step=0.5cm, gray, very thin] (-1, 1.49) grid (16.75, 2.5); % Строка 4
+    \draw[step=0.5cm, gray, very thin] (-1, 2.99) grid (16.5, 4); % Строка 3
+    \draw[step=0.5cm, gray, very thin] (-1, 4.49) grid (16.75, 5.5); % Строка 2
+    \draw[step=0.5cm, gray, very thin] (-1, 5.99) grid (16.75, 7); % Строка 1
+
+    \newcounter{num}
+    \newcounter{num2}
+	\setcounter{num}{0}
+	\setcounter{num2}{35}
+	\foreach \x in {-0.75,-0.25,...,16.5} {
+		\node at(\x, 5.25) {\number\value{num}};
+		\node at(\x, 3.75) {\number\value{num2}};
+		
+		\node at(\x, 2.25) {\number\value{num}\addtocounter{num}{1}};
+		\node at(\x, 0.75) {\number\value{num2}\addtocounter{num2}{1}};
+	}		
+\end{tikzpicture}

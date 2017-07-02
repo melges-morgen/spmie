@@ -87,4 +87,6 @@ class GeocentricPoint {
     double earth_rotated_angle_;
 };
 
+class 
+
 #endif // GEOCENTRICPOINT_H_

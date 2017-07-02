@@ -1,0 +1,67 @@
+%%% Основные сведения %%%
+
+
+\newcommand{\thesisTitle}              % Диссертация, название
+{ ВОССТАНОВЛЕНИЕ ОРБИТЫ КО ПО РАДИОЛОКАЦИОННЫМ 
+	НАБЛЮДЕНИЯМ С УЧЁТОМ ВЛИЯНИЯ ИОНОСФЕРЫ 
+}
+\newcommand{\thesisSpecialtyNumber}    % Диссертация, специальность, номер
+{03.04.01}
+\newcommand{\thesisSpecialtyTitle}     % Диссертация, специальность, название
+{ Прикладные математика и физика}
+
+\newcommand{\thesisCity}               % Диссертация, город защиты
+{Москва}
+\newcommand{\thesisYear}               % Диссертация, год защиты
+{ 2017}
+
+\newcommand{\thesisOrganization}       % Диссертация, организация
+{\setstretch{1.0}\large Министерство образования и науки Российской Федерации \par
+ \vspace{3mm}
+ Федеральное государственное автономное образовательное учреждение \par
+ высшего профессионального образования \par
+ «Московский физико-технический институт \par
+ (государственный университет)» \par
+  \vspace{3mm}
+ Факультет радиотехники и кибернетики \par \par
+  \vspace{3mm}
+ Кафедра информационных систем
+}
+
+
+\newcommand{\thesisAuthorRegalia}      % Диссертация, регалии автора
+{\large\setstretch{1.0}студент 115 группы }
+\newcommand{\thesisAuthor}             % Диссертация, ФИО автора
+{\large Морген Матвей Владиславович}
+
+
+\newcommand{\supervisorRegalia}        % Научный руководитель, регалии
+{\large\setstretch{1.0}д.т.н. }
+\newcommand{\supervisorFio}            % Научный руководитель, ФИО
+{\large Лагуткин Владимир Николаевич}
+
+%\newcommand{\mydef}
+%{\textbf{\underline{Определение:}\hspace{0.1cm}}\hspace{0.1cm}}        % шаблон определения
+
+\theoremstyle{plain}
+\newtheorem{mylem}{Лемма}[chapter]
+
+\theoremstyle{plain}
+\newtheorem{mytask}{Задача}[chapter]
+
+\theoremstyle{definition}
+\newtheorem{mydef}{Определение}[chapter]
+
+\renewcommand{\proofname}{Доказательство}
+
+\newcounter{mydefc}
+\def\Mydef{\addtocounter{mydefc}{1}{\underline{\bf Определение(\arabic{mydefc}):}\hspace{0.1cm}}}
+
+\newcounter{mylemc}
+\def\Mylem{\addtocounter{mylemc}{1}{{\underline{\bf Лемма(\arabic{mylemc}):}\hspace{0.1cm}}}}
+
+\newcommand{\myprove}
+{\textbf{\underline{Доказательство:}\hspace{0.1cm}$\circ$}\hspace{0.1cm}}     % шаблон доказательства
+
+\newcounter{mytaskc}
+\def\Mytask{\addtocounter{mytaskc}{1}{\underline{\bf Формулировка задачи(\arabic{mytaskc}):}\hspace{0.1cm}}}

@@ -1,0 +1,185 @@
+\appendix
+\chapter{} \label{AppendixA}
+\section{Текст модели дискретной задачи оптимизации расстановки базовых станций на языке math prog}  \label{model_text}
+\begin{verbatim}
+set STATION_TYPES;
+set PLACEMENTS;
+
+/*PARAMETERS*/
+
+/* coverage radius*/
+param r {i in STATION_TYPES};
+
+/*connection distance*/
+param R {i in STATION_TYPES};
+
+/*station cost*/
+param c {i in STATION_TYPES};
+
+/*posible placement*/
+param unsorted_p{i in PLACEMENTS};
+
+/*numers of placement*/
+param p {i in PLACEMENTS} := 1 + sum {j in PLACEMENTS} 
+if (unsorted_p[j] < unsorted_p[i] || unsorted_p[j] == unsorted_p[i] && j < i) 
+then 1;
+
+param r_sorted {i in STATION_TYPES} := 1 + sum {j in STATION_TYPES}
+if (r[j] < r[i] || r[j] == r[i] && j < i)
+then 1;
+
+/*budget*/
+param G;
+
+/*VARIABLES*/
+
+/*is there station type j in placement i*/
+var x {i in PLACEMENTS, j in STATION_TYPES}, integer, >=0, <=1;
+
+/*station indicator*/
+var y {i in PLACEMENTS}, integer, >=0, <=1;
+
+/*weighted coverage radius left in placement i*/
+var wrl {i in PLACEMENTS} >=0;
+
+/*weighted coverage radius right in placement i*/
+var wrr {i in PLACEMENTS} >=0;
+
+/*weighted cost of station in placement i*/
+var wc {i in PLACEMENTS} >=0;
+
+/*does station in i connected with station in j*/
+var u {i in PLACEMENTS, j in PLACEMENTS}, integer, >=0, <=1;
+
+/*is the station typed k in placement i is connected with station j*/
+var z {i in PLACEMENTS, j in PLACEMENTS, k in STATION_TYPES}, integer, >=0, <=1;
+
+/*OBJECTIVE FUNCTION*/
+maximize coverage: sum{i in PLACEMENTS}(wrl[i] + wrr[i]);
+
+/*STATEMENTS*/
+
+/*correct placement statements*/ 
+s.t. station_indicator {i in PLACEMENTS} : sum{j in STATION_TYPES}x[i,j] = y[i];
+
+s.t. end_and_start_stations_start 
+{i in PLACEMENTS, j in STATION_TYPES: p[i] = 1 and r_sorted[j] = 1}: 
+x[i, j] = 1; 
+
+s.t. end_and_start_stations_end 
+{i in PLACEMENTS, j in STATION_TYPES: p[i] = card(PLACEMENTS) and r_sorted[j] = 1}: 
+x[i, j] = 1;
+
+s.t. end_and_start_stations_deny_other_placement 
+{i1 in 2..(card(PLACEMENTS)-1), i in PLACEMENTS, j in STATION_TYPES: 
+p[i] = i1 and r_sorted[j] = 1}
+: x[i, j] = 0; 
+
+/*cost statements*/ 
+s.t. every_placement_cost 
+{i in PLACEMENTS}: 
+sum{j in STATION_TYPES}(c[j]*x[i,j]) = wc[i];
+
+s.t. cost_broad: 
+sum{i in PLACEMENTS}wc[i] <= G;
+
+/*coverage statements*/
+s.t. real_radius_broad_right 
+{i in PLACEMENTS}:
+sum{j in STATION_TYPES}(r[j]*x[i,j]) >= wrr[i];
+
+s.t. real_radius_broad_left
+{i in PLACEMENTS}:
+sum{j in STATION_TYPES}(r[j]*x[i,j]) >= wrl[i];
+
+s.t. radius_not_crossing 
+{i1 in 1..card(PLACEMENTS), i in PLACEMENTS, 
+j1 in 1..card(PLACEMENTS), in PLACEMENTS : 
+i1 = p[i] and j1 = p[j] and i1 < j1} 
+: unsorted_p[i] + wrr[i] <= unsorted_p[j] - wrl[j];
+
+/*connection statements*/
+s.t. only_one_station_connection_right 
+{k1 in 2..(card(PLACEMENTS)-1), k in PLACEMENTS : k1 = p[k]} : 
+sum{j in 1..card(PLACEMENTS), i in PLACEMENTS : j = p[i] and j > p[k]}u[k,i] = y[k];
+
+s.t. only_one_station_connection_left 
+{k1 in 2..(card(PLACEMENTS)-1), k in PLACEMENTS : k1 = p[k]} : 
+sum{j in 1..card(PLACEMENTS), i in PLACEMENTS : j = p[i] and j < p[k]}u[k,i] = y[k];
+
+s.t. only_one_station_connection_start : 
+sum{j in 1..card(PLACEMENTS), i in PLACEMENTS, k in PLACEMENTS : 
+j = p[i] and 1 = p[k] and j > 1}u[k,i] = 1;
+
+s.t. only_one_station_connection_end :
+sum{j in 1..card(PLACEMENTS), i in PLACEMENTS, k in PLACEMENTS : 
+j = p[i] and  j < card(PLACEMENTS) and card(PLACEMENTS) = p[k]}u[k,i] = 1;
+
+s.t. only_one_station_connection_simmetric
+{k in PLACEMENTS, i in PLACEMENTS}: 
+u[k,i]=u[i,k];
+
+s.t. connection_indicator_z_1 
+{i in PLACEMENTS, j in PLACEMENTS, k in STATION_TYPES} :
+u[i,j] + x[i,k] - z[i,j,k] <= 1;
+
+s.t. connection_indicator_z_2 
+{i in PLACEMENTS, j in PLACEMENTS, k in STATION_TYPES} :
+(2*z[i,j,k]) - u[i,j] - x[i,k]<= 0;
+
+s.t. general_connection_statement
+{i in PLACEMENTS, j in PLACEMENTS, k in STATION_TYPES} : 
+z[i,j,k]*(R[k]-abs(unsorted_p[i]-unsorted_p[j])) >=0;
+
+solve;
+\end{verbatim}
+\clearpage
+\section{Пример входных данных для модели \ref{model_text}}
+\begin{verbatim}
+set STATION_TYPES := start_end type1 type2;
+
+set PLACEMENTS := start_point end_point point1 point2;
+
+param unsorted_p := 
+start_point         0.0
+point1              1.0
+point2              2.0
+end_point           14.0;
+
+param               :c                   r                   R  :=
+type1               100.0               2.0                 7.0                 
+type2               100.0               3.0                 6.0                 
+start_end           0.0                 0.0                 30.0;  
+
+param G :=  1000.0;
+\end{verbatim}
+
+\section{Описание ЭВМ, на которой производились вычисления} \label{tech}
+Алгоритмы описанные в разделах \ref{ch:exactSolution} были реализованы на языке Java версии 1.7, для исполнения использовалась виртуальная машина Oracle JRE 1.7.
+
+Технические характеристики ЭВМ, на которой проводились вычисления \cite{intelUrl}:
+
+\begin{table}[H]
+	\caption{Модель и характеристики CPU}
+	\begin{center}
+		\begin{tabular}{|c|c|}
+			\hline
+			\textbf{Модель} & Intel(R) Core(TM) i7-3610QM \\
+			\hline
+			\textbf{Базовая тактовая частота процессора} & 2.3 GHz \\
+			\hline
+			\textbf{Количество ядер} & 4 \\
+			\hline
+			\textbf{Литография} & 22 nm\\
+			\hline
+		\end{tabular}
+	\end{center}
+\end{table} 
+
+\textbf{Объем оперативной памяти:} 8Гб.
+
+Для решения задач с помощь пакета GLPK был написан файл startSolution.sh, который контролировал запуск программы-решателя glpsol поочередно в необходимыми файлами параметров.
+
+Java проект и файлы math prog можно найти в git-репозитории:
+https://github.com/RodionSmolnikov/RSUStationOptimalPlacement
+

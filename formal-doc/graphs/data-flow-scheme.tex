@@ -1,0 +1,25 @@
+\begin{tikzpicture}[node distance = 1cm, auto, align=center]
+% Узлы
+\node [input]                                               (init)              {Начало итерации};
+\node [block, below of=init]                                (TLEReader)         {TLEReader};
+\node [block, below of=TLEReader]                           (AstroUtils)        {AstroUtils};
+\node [block, below of=AstroUtils]                          (OrbitCalculator)   {OrbitCalculator};
+\node [block, right of=TLEReader, node distance = 5cm]      (NeQuick)           {NeQuick};
+\node [block, right of=AstroUtils, node distance = 5cm]     (RadarStation)      {RadarStation};
+\node [block, right of=OrbitCalculator, node distance = 5cm](out)               {Выход};
+\node [input, below of=out]                                 (end)               {Конец итерации};
+
+% Рёбра
+\path [line, dotted] (init)         -- node {} (TLEReader);
+\path [line] (TLEReader)            -- node {} (AstroUtils);
+\path [line] (AstroUtils)           -- node {} (OrbitCalculator);
+\draw [line] (OrbitCalculator.east) -- ++(0.5,0) 
+                                    -- ++(0,6) 
+                                    -- ++(0,0) --                
+node  {} node {} (NeQuick.west);
+\path [line] (NeQuick)              -- node {} (RadarStation);
+\path [line] (RadarStation)         -- node {} (out);
+\path [line, dotted] (out)          -- node {} (end);
+
+%\path [line] (view) -- node {} (read);
+\end{tikzpicture}

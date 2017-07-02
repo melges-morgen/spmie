@@ -1,0 +1,298 @@
+\chapter{Приближенное решение задачи целочисленного линейного программирования} \label{ch:aprox_solution}
+При увеличении размерности задачи, сформулированной в \ref{discrete_form}, время отыскания точного решения быстро (экспоненциально) возрастает. 
+В связи с этим, был разработан эвристический алгоритм в двух модификациях, для решения задачи. В этой главе описывается алгоритм и приводятся исследования его точности.
+
+\section{Эвристический алгоритм: общие описание} \label{heuristic_GLPK}
+Алгоритм оснван на принципе локальных улучшений, который хорошо себя зарекомендовал в применении к задачи коммивояжера. Основная идея заключается в том, чтобы последовательными итерациями улучшать текущую ситуацию до достижения локального максимума. Т.к. максимума локальный - алгоритм не гарантирует нахождение точного решения. Более того, функция площади покрытия определенная на множестве расстановок может иметь несколько локальных максимумов. Поэтому на множестве корректных расширеных расстановок вводится понятие расстояния, аналогично расстоянию Хеминга, с помощью которого будут отбираться несколько наиболее удаленных друг от друга расстановок для последующего улучшения. Такой прием позволит повысить вероятность того, что улучшение одно из выбранных путей сойдется к оптимальному решению.
+
+Т.к. цены всех типов станций (кроме специального типа $t_{0}$, опр. \ref{spread_placement_def}) положительные, то граф задачи оптимального покрытия G (опр. \ref{graph_def}) можно взвесить аналогично тому, как это сделано в определении \ref{edge_weight_def}.
+\begin{mydef} \label{edge_connection_weight_def}
+	Каждому ребру ($p_{i}, p_{j}$), $x{p_{i}} > x_{p_{j}}$,  определенному в \ref{edge_def} сопоставим число $c(t(p_{j}))$ и назовем его \textit{весом связи} ребра. Обозначать вес связи ребра ($p_{i}, p_{j}$) будем $con(p_{i}, p_{j})$.
+\end{mydef}
+
+Взвешенный таким образом граф $G$ будем обозначать $G^{con}$.
+Обе модификаций эвристического алгоритма имеют одинаковую структуру:
+\begin{enumerate}
+	\item \textit{Поиск необходимого набора путей,} 
+	
+	\item \textit{Улучшение данного набора путей,} 
+	
+	\item \textit{Выбор из множества улучшенных путей оптимального,} 
+\end{enumerate}
+
+\begin{mydef} \label{path}
+	На множестве всех корректных путей $\mathfrak{P}$ определим множество $\mathfrak{B}$ - матриц размерности $m \times n$ так, что 
+каждой расстановке $P \in \mathfrak{P}$ соответствует ровно одина матрица $B \in \mathfrak{B}$, причем элементы матрицы определяются следующим образом:
+\begin{equation}
+	\begin{cases}	
+	p\{x_{i}, t_{j}\} \in P  \Leftrightarrow  B[i][j] = 1, \\
+	p\{x_{i}, t_{j}\} \notin P  \Leftrightarrow  B[i][j] = 0,
+	\end{cases}
+	\begin{cases}	
+		\forall i = \overline{1 \dots m},\\
+		\forall j = \overline{1 \dots n},
+	\end{cases}
+\end{equation}
+
+\end{mydef}
+т.е. $\text{если точка } p\{x_{i}, t_{j}\} \in P, \text{ то } B[i][j] = 1, \text{ в противном случае } B[i][j] = 0.$ Очевидно, отношение между матрицами из $\mathfrak{B}$ и корректными путями из $\mathfrak{B}$ является взаимооднозначным.
+
+\begin{mydef} \label{path_distance}
+	Паре матриц $B_{1}, B_{2} \in \mathfrak{B}$ поставим в соответствие число $d$, такое, что: 
+	\begin{equation}
+		d = \sum_{i = 1}^{m}\sum_{j = 1}^{n}(B_{1}[i][j] \oplus B_{2}[i][j]),
+	\end{equation}
+	знак $\oplus$ - операция сложения по модулю 2.
+\end{mydef}
+Т.е. $d$ есть ни что иное, как расстояние Хеминга между матрицами состоящими из бинарных элементов - колличество отличающийхся элементов. Обозначать расстояние между матрицами будем так:
+$d =dist(B_{1}, B_{2})$
+
+Далее приводится псевдокод эвристического алгоритма.
+В комментариях начало каждого пункта будет помечено комментарием вида ``$\slash\slash$ \textcolor{commentcolor}{Phase x}'', где x - номер пункта в этом списке.
+
+
+В псевдокоде ниже используются типы данных введенные в определениях \ref{algo_type_def} и \ref{algo_path_def}: \textbf{vertex} - тип данных для хранения типа базовой станции, \textbf{path} - односвязный список, для хранения вершин пути.
+Введем два новых типа данных: \textbf{pair} - тип состоящий из двух элементов типа \textbf{path} и тип \textbf{path\_map} - список состоящий из пар элементов типа pair и \textbf{integer}.
+
+
+Кроме входных данных алгоритм принимает набор параметров, определяющих поведение алгоритма:
+
+\begin{itemize}
+	\item PATH\_TO\_IMPROVE\_COUNT - колличесво путей, которые генерируются в результате исполнения пункта 1.
+	\item INIT\_PATH\_COUNT - количество найденных путей, из которых специальным образом будет выбрано PATH\_TO\_IMPROVE\_COUNT.
+\end{itemize}
+Очевидно, PATH\_TO\_IMPROVE\_COUNT < PATH\_TO\_IMPROVE\_COUNT. Функция RecursivePathFound использует тот же метод рекурсивного углубления, что и функция \ref{func_recusive_brute_force}, для нахождения количества путей равного INIT\_PATH\_COUNT. Описание функциии Improve проводится в разделе \ref{iprove_function}.
+
+Общий вид алгоритма представлен в листинге ниже:
+
+
+\begin{function}[H]
+	\SetKwData{CurrentPath}{CurrentPath}
+	\SetKwData{C}{C}
+	\SetKwData{InitPaths}{InitPaths}
+	\SetKwFunction{RemoveLast}{RemoveLast}
+	\SetKwFunction{GetChildren}{GetChildren}
+	\SetKwFunction{Add}{Add}
+	\SetKwFunction{RecursivePathFound}{RecursivePathFound}
+	\SetKwFunction{GetLast}{GetLast}
+	\SetKwFunction{GetCost}{GetCost}
+	\SetKwFunction{GetCoverage}{GetCoverage}
+	\SetKwInOut{Input}{Входные данные}\SetKwInOut{Output}{Данные на выходе}
+	\Input{\CurrentPath  - переменная типа path, определяющяя расстановку текущей итерации, \C - бюджет}
+	\BlankLine
+	\Begin {
+
+		\tcp*[h]{\textcolor{commentcolor}{Если рекурсия дошла до конечной вершины}}
+		
+		\If{\CurrentPath.\GetLast = $p_{nm+1}$} {
+			
+			\If{sizeof\normalfont(\InitPaths\normalfont) < INIT\_PATH\_COUNT} {
+				\tcp*[h]{\textcolor{commentcolor}{Добавляем путь в массив \InitPaths}}
+				
+				\InitPaths.Add(\CurrentPath)\;
+			}
+			
+		}
+
+		\tcp*[h]{\textcolor{commentcolor}{цикл по всем вершинам, в которые можно перейти их последней добавленной}}
+		
+		\For{\normalfont(p in \CurrentPath.\GetLast.\GetChildren \normalfont)}{
+			
+			\tcp*[h]{\textcolor{commentcolor}{Если установка новой базовой станции вписывается в бюджет}}
+			
+			\If{\normalfont(p.\GetCost \normalfont+ \CurrentPath.\GetCost \normalfont) < C}{
+				
+				\tcp*[h]{\textcolor{commentcolor}{Тогда добавляем ее и переходим глубже}}
+				
+				\CurrentPath.\Add(p)\;
+				
+				\RecursivePathFound(\CurrentPath, \C)\;
+				
+				\tcp*[h]{\textcolor{commentcolor}{После возвращения из более глубоких итераций необходимо удалить установленную базовую станцию}}
+				
+				\CurrentPath.\RemoveLast\;
+			}
+		}
+	}
+	\caption{RecursivePathFound(path CurrentPath, double C, path array InitPaths)} \label{func_recusive_heuristic}
+\end{function}
+
+ \begin{algorithm}
+ 	\SetKwFunction{GetChilds}{GetChilds}
+ 	\SetKwFunction{RecursivePathFound}{RecursivePathFound}
+ 	\SetKwFunction{Improve}{Improve}
+ 	\SetKwFunction{Add}{Add}
+ 	\SetKwFunction{Contains}{Contains}
+ 	\SetKwFunction{GetFirstPath}{GetFirstPath}
+ 	\SetKwFunction{GetSecondPath}{GetSecondPath}
+ 	\SetKwData{StartPath}{StartPath}
+ 	\SetKwData{Distances}{Distances}
+ 	\SetKwData{InitPaths}{InitPaths}
+ 	\SetKwData{PathsToImprove}{PathsToImprove}
+ 	\SetKwData{C}{C}
+ 	\SetKwData{Pmax}{Pmax}
+ 	\SetKwInOut{Input}{Входные данные}
+ 	\SetKwInOut{Output}{Данные на выходе}
+ 	\Input{Граф $G^con = {p_{0} \dots p_{nm+1}}$ (определен в \ref{graph_def}, взвешен согласно определению \ref{edge_connection_weight_def}) построенный на основе множеств X и Т, данных в условии задачи \ref{discrete_form}. Праметры алгоритма: PATH\_TO\_IMPROVE\_COUNT, INIT\_PATH\_COUNT \\
+ 		С - размер бюджета. Параметры алгоритма: PathCount}
+ 	\Output{Pmax - корректный путь (определен в \ref{path_def}) в графе G, расстановка которого имеет максимальную площадь покрытия с некоторой погрешностью.}
+ 	\BlankLine
+ 	\Begin(\textcolor{commentcolor}{Начало алгоритма}) {
+ 		
+ 		\tcp*[h]{\textcolor{commentcolor}{Создаем переменные, инициализируем стартовый путь}}
+ 		
+ 		var (path) \StartPath\d;
+ 		\BlankLine
+ 		\tcp*[h]{\textcolor{commentcolor}{Переменная, содержащая найденные рекурсивной функцией пути}}
+ 		
+ 		var (path[]) \InitPaths\;
+ 		
+ 		\BlankLine
+ 		\tcp*[h]{\textcolor{commentcolor}{Переменная, содержащая найденные рекурсивной функцией пути}}
+ 		
+ 		var (path[]) \PathsToImprove\;
+ 		
+ 		\tcp*[h]{\textcolor{commentcolor}{Переменная, содержащая все расстояния между найденными путями}}
+ 		var path\_map \Distances\;
+ 		
+ 		\StartPath.Add($p_{0}$)\;
+ 		
+ 		\tcp*[h]{\textcolor{commentcolor}{Phase 1}}
+ 		
+ 		\RecursivePathFound(\StartPath, \C, \InitPaths)\;
+ 		
+ 		
+ 		\For{i in \InitPaths} {
+ 			\For{j in \InitPaths} {
+ 				\If {i $\neq$ j} {
+ 					\Distances.\Add(new pair(i, j), distance(i, j))\;
+ 				}
+ 			}
+ 		}
+ 		
+ 		\Distances.Sort(by distance);
+ 		\For{i in \Distances} {
+ 			\If {\normalfont{szeof(\PathsToImprove) $\le$ PATH\_TO\_IMPROVE\_COUNT}} {
+ 				\If {!\PathsToImprove.\Contains(i.\GetFirstPath)} {
+ 					\PathsToImprove.\Add(i.\GetFirstPath)\;
+ 				}
+ 				\If {!\PathsToImprove.\Contains(i.\GetSecondPath)} {
+ 					\PathsToImprove.\Add(i.\GetSecondPath)\;
+ 				}
+ 				\PathsToImprove.\Add(i.\GetSecondPath)\;
+ 			} \Else {
+ 			Break\;
+ 		}
+ 	}
+ 	
+ 	
+ 	\tcp*[h]{\textcolor{commentcolor}{Phase 2 and 3}}
+ 	
+ 	\For{i in \PathsToImprove} {
+ 		\Improve(i)\;
+ 		\If{Pmax.\GetCoverage < i} {
+ 			Pmax := i\;
+ 		}
+ 	}
+ 	
+ 	\KwRet Pmax\;
+ }
+ \caption{Эвристический алгоритм для задачи \ref{discrete_form}}\label{algo_heuristic_general}
+\end{algorithm}
+
+\clearpage
+
+\section{Функция улучшения эмпирического алгоритма} \label{iprove_function}
+
+\begin{mydef}
+	\textit{Допустимым улучшением} корректного пути $P$ в рамках бюджета $С$ назовем корректный путь $\tilde{P}$, равной или на единицу большей длинны $P$, такой что:
+	$
+	\begin{cases}
+	\mathfrak{M}(\Delta(P)) < \mathfrak{M}(\Delta(\tilde{P})),\\
+	\text{Стоимость расстановки $\tilde{P}$ не превосходит бюджет $C$: $\sum\limits_{p \in \tilde{P}}c(t(p)) \le C$}
+	\end{cases}
+	$
+\end{mydef}
+
+Из множества всех допустимых улучшений выбирается такое, отношение приращения покрытия которого к приращению стоимости максимально. Улучшения бывают двух видов:
+\begin{itemize}
+	\item добавление новой станции к имеющейся расстановке
+	\item Изменение типа и местоположения имеющейся базовой станции
+\end{itemize}
+
+На листинге ниже представлена функция Improve, успользующаяся в фазе 2 алгоритма \ref{algo_heuristic_general}. Функция \textbf{TryToAdd} возвращает набор улучшений (\textbf{path[]}) добавлением новой станции.
+Функция \textbf{TryToChangeAndReplace} возвращает набор улучшений (\textbf{path[]}) изменением типа и положения имеющихся базовых станций.
+
+\begin{function} [H]
+	\SetKwData{CurrentPath}{CurrentPath}
+	\SetKwData{C}{C}
+	\SetKwData{improvementList}{improvementList}
+	\SetKwFunction{AddAll}{AddAll}
+	\SetKwFunction{TryToAdd}{TryToAdd}
+	\SetKwFunction{Add}{Add}
+	\SetKwFunction{RecursivePathFound}{RecursivePathFound}
+	\SetKwFunction{TryToChangeAndReplace}{TryToChangeAndReplace}
+	\SetKwFunction{Sort}{Sort}
+	\SetKwFunction{GetCoverage}{GetCoverage}
+	\SetKwInOut{Input}{Входные данные}\SetKwInOut{Output}{Данные на выходе}
+	\Input{\CurrentPath  - переменная типа path, определяющяя расстановку, \C - бюджет}
+	\BlankLine
+	\Begin {
+		
+		path [] \improvementList\;
+		
+		\tcp*[h]{\textcolor{commentcolor}{Получаем все возможные улучшения}}
+		
+		\improvementList.\AddAll(\TryToAdd(\CurrentPath))\;
+		\improvementList.\AddAll(\TryToChangeAndReplace(\CurrentPath))\;
+		
+		\While {\normalfont{sizeof(\improvementList())}} {
+			
+			\tcp*[h]{\textcolor{commentcolor}{Сортируем по убыванию качества улучшений}}
+			
+			\improvementList.\Sort(by (delta coverage \slash delta cost))
+			
+			\tcp*[h]{\textcolor{commentcolor}{Применяем одно - самое лучшее}}
+									
+			\CurrentPath = \improvementList[0]\;
+			\improvementList.\AddAll(\TryToAdd(\CurrentPath))\;
+			\improvementList.\AddAll(\TryToChangeAndReplace(\CurrentPath))\;
+		}
+	}
+	\caption{RecursivePathFound(path Improve)} \label{func_improve_heuristic}
+\end{function}
+
+Введем обозначения:
+\begin{itemize}
+	\item t - время выполнения	
+	\item $\delta$ - процент покрытия
+	\item $\delta^{e}$ - процент покрытия точного решения
+	\item $d$ - расстояние от точного решения
+	\item PTIC - параметр PATH\_TO\_IMPROVE\_COUNT 
+	\item IPC - параметр INIT\_PATH\_COUNT 
+\end{itemize}
+
+Для измерений использовалась задача с |X| = 54, |T| = 4, размере бюджета C = 8000 (при средней стоимости типа порядка 400).
+
+\begin{table}[H]
+	\caption{\label{tab:brute_heuristic1}Результаты работы эвристического алгоритма на задаче \ref{discrete_form}}
+	\begin{center}
+		\begin{tabular}{|c|c|c|c|c|c|}
+			\hline
+			t & $\delta$ & $\delta^{e}$ & $d$  & PTIC & IPC \\
+			\hline
+			1,6 & 81,2 & 92,4 & 11 & 10 & 100\\
+			\hline
+			2,3 & 86,7 & 92,4 & 5 & 30 & 300\\
+			\hline
+			4,4 & 88,7 & 92,4 &  6 & 15 & 400\\
+			\hline			
+			4,3 & 84,7 & 92,4 &  8 & 10 & 500\\
+			\hline
+			8,1 & 89,1 & 92,4 &  4 & 20 & 1000\\
+			\hline						
+		\end{tabular}
+	\end{center}
+\end{table} 
+
+Результаты тестирования эвристического алгоритма показывают, что на объемах данных, на которых метод направленного перебора и метод ветвей и границ имеют значительное время исполнения, точность предоставляемого им решения может отличатьсяне более чем на 10\% при условии грамотного выбора параметров.
