@@ -1,12 +1,12 @@
-\begin{tikzpicture}[node distance = 2cm, auto]
+\begin{tikzpicture}[node distance = 4cm, auto]
     % Узлы
     \node [input] (orbit-params) {Параметры\\ орбиты};
     \node [input, right of=orbit-params, node distance=6cm] (ionosphere-params) {Параметры\\ Ионосферы};
-    \node [block, below of=orbit-params,  node distance=3cm] (sdp) {Модель\\ движения\\ КО};
+    \node [block, below of=orbit-params] (sdp) {Модель\\ движения\\ КО};
 	\node [block, below of=ionosphere-params] (nequick) {Модель\\ влияния\\ ионосферы};
-	\node [block, below left of=nequick] (radiowave) {Модель\\ радиолокационных\\ измерений};
-	\node [block, left of=radiowave, node distance=5cm] (error) {Модель\\ ошибок};
-	\node [input, below left of=radiowave, node distance=5cm] (radar-params) {Параметры\\ РЛС};
+	\node [block, below left of=nequick, node distance=5cm] (radiowave) {Модель\\ радиолокационных\\ измерений};
+	\node [block, left of=radiowave, node distance=6cm] (error) {Модель\\ ошибок};
+	\node [input, below left of=radiowave, node distance=4cm] (radar-params) {Параметры\\ РЛС};
 	\node [output, right of=radar-params] (output) {Результаты\\ измерений};
     % Рёбра
     \path [line, dotted] (orbit-params) -- (sdp);

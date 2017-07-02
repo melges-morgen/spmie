@@ -1,9 +1,9 @@
-\begin{tikzpicture}[node distance = 2cm, auto]
+\begin{tikzpicture}[node distance = 3cm, auto]
     % Узлы
     \node [input] (init) {Начало};
     \node [block, below of=init] (simulator) {Иммитатор};
     \node [block, right of=simulator, node distance=10cm, outer sep=0] (resolver) {Восстановитель};
-    \node [input, above of=resolver, node distance=2cm] (end) {Конец};
+    \node [input, above of=resolver] (end) {Конец};
     % Рёбра
     \path [line, dotted] (init) -- node {Параметры орбиты} (simulator);
     \path [line] (simulator) -- node {Результаты измерений} (resolver);

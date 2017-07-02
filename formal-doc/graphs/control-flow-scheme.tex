@@ -1,11 +1,11 @@
-\begin{tikzpicture}[node distance = 0.5cm, auto, align=center]
+\begin{tikzpicture}[node distance = 4cm, auto, align=center]
 % Узлы
 \node [start]                     (init)          {Начало\\ итерации};
-\node [block, below of=init]      (obtain)        {Получение \\ координат КО \\ в текущий \\ момент времени};
-\node [decision, below of=obtain, node distance=3.5cm] (view)          {Виден ли КО РЛС?};
-\node [block, below of=view]      (calculate)     {Рассчет \\ наблюдаемых \\ параметров и т.д.};
+\node [block, below of=init, node distance=4cm]      (obtain)        {Получение \\ координат КО \\ в текущий \\ момент времени};
+\node [decision, below of=obtain, node distance=4.5cm] (view)          {Виден ли КО РЛС?};
+\node [block, below of=view, node distance=4cm]      (calculate)     {Рассчет \\ наблюдаемых \\ параметров и т.д.};
 %изменить тип блока записи
-\node [block, below of=calculate, node distance=2.5cm] (write)         {Запись \\ результатов};
+\node [block, below of=calculate, node distance=3cm] (write)         {Запись \\ результатов};
 \node [end, below of=write, node distance=3cm]     (end)           {Конец\\ итерации};
 
 % Рёбра
@@ -15,9 +15,9 @@
 \path [line] (calculate)    -- node {} (write);
 \path [line, dotted] (write)-- node {} (end);
 \draw [line] (view.east)    -- ++(1.5,0) 
-                            -- ++(0,-8.5) 
+                            -- ++(0,-10) 
                             -- ++(0,0) --                
-node [xshift=1.8cm,yshift=4.7cm, text width=2.5cm]
+node [xshift=-0.05cm,yshift=10cm, text width=2.5cm]
 {Нет} node {} (end.east);
 
 %\path [line] (view) -- node {} (read);

@@ -1,7 +1,7 @@
 \begin{tikzpicture}[node distance = 2cm, auto]
     % Узлы
     \node [start] (start) {Начало};
-    \node [input, right of=start] (observe) {Результаты\\ измерений};
+    \node [input, right of=start, node distance=4cm] (observe) {Результаты\\ измерений};
     \node [block, below of=start] (resolver) {Выбор новых\\ возможных параметров\\ орбиты};
     \node [block, below of=resolver] (immitator) {Иммитация с новыми\\ параметрами};
     \node [decision, below of=immitator] (best) {Траектория совпала?};
@@ -12,7 +12,7 @@
     \path [line, dotted] (observe) -- (resolver);
     \path [line] (resolver) -- (immitator);
     \path [line] (immitator) -- (best);
-    \path [line] (best) --++ (-3,0) node [near start] {Нет} |- (resolver);
+    \path [line] (best) --++ (-4,0) node [near start] {Нет} |- (resolver);
     \path [line] (best) -- node {Да} (end);
     \path [line, dotted] (best) --++ (2,0) -- (output);
 \end{tikzpicture}
