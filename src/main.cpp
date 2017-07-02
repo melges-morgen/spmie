@@ -71,7 +71,7 @@ void print_difference(Orbit &real, Orbit with_flux, Orbit without_flux, double n
 
     //printf("0,");
     print_delta(real, without_flux, sight_times);
-    printf("%f,%f,no_flux\n", noise, flux);
+    printf("%f,%f,no_flux\n", noise, 0);
 }
 
 void run_imitation(Orbit &target_orbit, double target_sigma, double target_flux)

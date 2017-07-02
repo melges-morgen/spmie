@@ -13,7 +13,7 @@
 #include "TLEReader.h"
 
 std::map<int, Orbit> TLEReader::ReadSatellitesFromFile(
-        std::string filename) throw(TLEFormatException)
+        std::string filename)
 {
     std::map<int, Orbit> produced_map;
     std::ifstream input_stream(filename);

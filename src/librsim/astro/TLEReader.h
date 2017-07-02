@@ -26,7 +26,7 @@ class TLEReader
 {
   public:
     static std::map<int, Orbit> ReadSatellitesFromFile(
-            std::string filename) throw(TLEFormatException);
+            std::string filename);
 
   protected:
     static Orbit ParseTLEString(

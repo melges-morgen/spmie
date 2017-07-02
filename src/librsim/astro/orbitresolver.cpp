@@ -170,20 +170,22 @@ Orbit orbitresolver::RestoreOrbitConsideringFlux(
         fprintf (stderr, "Flux      = %.5f\n", FIT(7));
     }
 
-    fprintf (stderr, "status = %s\n", gsl_strerror (status));
+    fprintf (stderr, "status = %s\n\n\n", gsl_strerror (status));
+
+    Orbit resolved_orbit(0, real_orbit,
+          gsl_vector_get(solver->x, 0),
+          gsl_vector_get(solver->x, 1),
+          gsl_vector_get(solver->x, 2),
+          gsl_vector_get(solver->x, 3),
+          gsl_vector_get(solver->x, 4),
+          gsl_vector_get(solver->x, 5),
+          gsl_vector_get(solver->x, 6)
+    );
 
     gsl_multifit_fdfsolver_free (solver);
     gsl_rng_free (r);
 
-    return Orbit(0, real_orbit,
-                 gsl_vector_get(solver->x, 0),
-                 gsl_vector_get(solver->x, 1),
-                 gsl_vector_get(solver->x, 2),
-                 gsl_vector_get(solver->x, 3),
-                 gsl_vector_get(solver->x, 4),
-                 gsl_vector_get(solver->x, 5),
-                 gsl_vector_get(solver->x, 6)
-    );
+    return resolved_orbit;
 }
 
 int orbitresolver::CalculationFunctionNoFlux(const gsl_vector * x, void *data,
@@ -339,18 +341,20 @@ Orbit orbitresolver::RestoreOrbitNoFlux(
         fprintf (stderr, "Mean Motion      = %.5f\n", FIT(6));
     }
 
-    fprintf (stderr, "status = %s\n", gsl_strerror (status));
+    fprintf (stderr, "status = %s\n\n\n", gsl_strerror (status));
+
+    Orbit restored_orbit(0, real_orbit,
+          gsl_vector_get(solver->x, 0),
+          gsl_vector_get(solver->x, 1),
+          gsl_vector_get(solver->x, 2),
+          gsl_vector_get(solver->x, 3),
+          gsl_vector_get(solver->x, 4),
+          gsl_vector_get(solver->x, 5),
+          gsl_vector_get(solver->x, 6)
+    );
 
     gsl_multifit_fdfsolver_free (solver);
     gsl_rng_free (r);
 
-    return Orbit(0, real_orbit,
-                 gsl_vector_get(solver->x, 0),
-                 gsl_vector_get(solver->x, 1),
-                 gsl_vector_get(solver->x, 2),
-                 gsl_vector_get(solver->x, 3),
-                 gsl_vector_get(solver->x, 4),
-                 gsl_vector_get(solver->x, 5),
-                 gsl_vector_get(solver->x, 6)
-    );
+    return restored_orbit;
 }
