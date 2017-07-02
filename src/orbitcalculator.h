@@ -4,7 +4,7 @@
 #include <vector>
 #include <ctime>
 
-#include "geocentricpoint.h"
+#include "coordpoints.h"
 
 class Orbit
 {
@@ -28,9 +28,9 @@ class Orbit
         double inclination_angle, double ascending_node, double excentrisitet, 
         double pericenter_argument, double mean_anomaly, double mean_motion);
 
-    GeocentricPoint GetTrajectoryPoint(time_t second_since_epoch);
+    OrbitPoint GetTrajectoryPoint(time_t second_since_epoch);
 
-    std::vector<GeocentricPoint> GetTrajectoryPoints(time_t start_time, 
+    std::vector<OrbitPoint> GetTrajectoryPoints(time_t start_time,
         time_t end_time, time_t time_step);
     
 

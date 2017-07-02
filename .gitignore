@@ -27,5 +27,9 @@
 *.out
 *.app
 
+<<<<<<< HEAD
 # logs
 *.log
+
+# Build dir
+build
