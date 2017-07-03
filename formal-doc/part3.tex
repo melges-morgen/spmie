@@ -29,15 +29,64 @@
 Кончено, в будущем все такие недостатки можно исправить.
 \newpage
 
+\section{Парсинг TLE-файлов}
+
+Для парсинга TLE-строк описанных в параграфе \ref{sbs:tle-module} на языке С++ можно воспользоваться функцией 
+\textit{sscanf} (см. листинг \ref{lst:TLE-Read-String}), предварительно заменив все пробелы на нули на позициях,
+предшествующих десятичным разделителям т.к. в TLE-формате принято не писать 0 перед десятичной частью.
+\begin{lstlisting}[language=C++, basicstyle=\fontsize{10}{9}\ttfamily,
+	caption={Чтение TLE строк},label={lst:TLE-Read-String}]
+if (longstr1[44] != ' ')
+	longstr1[43] = longstr1[44];
+longstr1[44] = '.';
+if (longstr1[7] == ' ')
+longstr1[7] = 'U';
+if (longstr1[9] == ' ')
+	longstr1[9] = '.';
+for (j = 45; j <= 49; j++)
+	if (longstr1[j] == ' ')
+		longstr1[j] = '0';
+if (longstr1[51] == ' ')
+	longstr1[51] = '0';
+if (longstr1[53] != ' ')
+	longstr1[52] = longstr1[53];
+longstr1[53] = '.';
+longstr2[25] = '.';
+for (j = 26; j <= 32; j++)
+	if (longstr2[j] == ' ')
+		longstr2[j] = '0';
+if (longstr1[62] == ' ')
+	longstr1[62] = '0';
+if (longstr1[68] == ' ')
+	longstr1[68] = '0';
+// First tle-line
+sscanf(longstr1,"%2d %5ld %1c %10s %2d %12lf %11lf %7lf %2d %7lf %2d %2d %6ld ",
+                 &cardnumb,&satrec.satnum,&classification, intldesg, 
+                 &satrec.epochyr, &satrec.epochdays,&satrec.ndot, 
+                 &satrec.nddot, &nexp, &satrec.bstar, &ibexp, &numb, &elnum );
+// Second tle-line
+if (longstr2[52] == ' ')
+	sscanf(longstr2,"%2d %5ld %9lf %9lf %8lf %9lf %9lf %10lf %6ld \n",
+                     &cardnumb,&satrec.satnum, &satrec.inclo,
+                     &satrec.nodeo,&satrec.ecco, &satrec.argpo, 
+                     &satrec.mo, &satrec.no, &revnum );
+else
+	sscanf(longstr2,"%2d %5ld %9lf %9lf %8lf %9lf %9lf %11lf %6ld \n",
+                     &cardnumb,&satrec.satnum, &satrec.inclo,
+                     &satrec.nodeo,&satrec.ecco, &satrec.argpo, 
+                     &satrec.mo, &satrec.no, &revnum );
+\end{lstlisting}
+
+
 \section{Иммитатор радиоизмерений}
 
-\begin{wrapfigure}[22]{l}{0.4\textwidth}
+\begin{wrapfigure}[25]{l}{0.4\textwidth}
 	\begin{center}
 		\input{graphs/control-flow-scheme}
 	\end{center}
 	\caption{Граф потока управления иммитатора} \label{fig:control-flow-scheme}
 \end{wrapfigure}
-Первым делом, необходимо оговорить детали реализации иммитатора, иммитатор разделён на следующие подмодули
+Иммитатор разделён на следующие подмодули
 реализующие абстрактные модели (см. рисунок \ref{common-immitation-scheme}):
 \begin{itemize}
 	\item OrbitCalculator, модуль расчёта орбит спутников -- реализация модели движения КО.
@@ -48,8 +97,6 @@
 
 Так же в иммитатор входит \textit{ImmitationDriver} управляющий модуль, запускает и управляет циклами имитации,
 направляет и именует потоки данных, может взаимодействовать с пользователем или внешними модулями и т.д
-
-\subsection{Цикл имитации}
 
 Определив все модули программы, можно определить то, как будет выглядеть один цикл вычислений, т.е. проведение
 одного измерения радиолокационной станцией в определённый момент времени. Блок-схемы потока управления и потока
@@ -64,8 +111,6 @@
 были доступны соответствующие этому циклу данные. \textit{TLEReader} в практической реализации не участвует в каждом 
 цикле -- \textit{OrbitCalculator} обращается к нему только на первой итерации, для получения списка спутников 
 и их параметров.
-
-\subsection{Классы и диаграмма классов}
 
 Как уже говорилось ранее, основные объекты, участвующие в имитации, хорошо и удобно объявляются в виде классов. В
 модуле иммитации определены следующие классы:
@@ -112,6 +157,107 @@ GeoPoint (см. Определение \ref{typ:GeoPoint})
 добиться простоты в расчётах расстояния и координат для них. Для точек орбит функции GetLatitude, GetLongitude будут 
 возвращать координаты подспутниковой точки.
 
-Схем классов слегка отличаются от тех, что были составлены для модулей иммитатора, главным образом в целях оптимизации производительности и читаемости кода.
+Схем классов слегка отличаются от тех, что были составлены для модулей иммитатора, главным образом в целях
+оптимизации производительности и читаемости кода.
 
-Полностью описать работу иммитатора можно блок-схемой изображённой на рисунке \ref{}
+Размер случайной погрешности будет задаваться через сигму и рассчитываться при помощи встроенной в С++
+математической библиотеки (см. листинг \ref{lst:RandomizeValue}).
+\begin{lstlisting}[language=C++, basicstyle=\fontsize{10}{9}\ttfamily,
+	caption={Добавление случайной велечины к измеренной},label={lst:RandomizeValue}]
+double astroutils::RandomizeValue(double expected, double sigma)
+{
+    assert(sigma < 1);
+    double normalized_sigma = fabs(expected * sigma);
+    std::normal_distribution<double> distribution(expected, normalized_sigma);
+
+    return distribution(astroutils::generator);
+}
+\end{lstlisting}
+
+Полностью описать работу иммитатора можно блок-схемой изображённой на рисунке \ref{fig:immitator-full-scheme}
+\begin{figure}[H]
+	\centering
+	\input{graphs/immitator-full-scheme}
+	\caption{Полная схема работы иммитатора} \label{fig:immitator-full-scheme}
+\end{figure}
+\newpage
+
+\section{Восстановитель орбит}
+
+Для реализации метода градиентного спуска была использована библиотека GSL\footnote{Scientific Library}. Для 
+сравнения качества восстановления орбиты с учётом и без учёта ионосферы необходимо реализовать два метода для 
+каждого из них соответсвенно, методы различаются лишь частью связанной с получением параметров т.к. для одного из
+них отсутсвует ионосферный параметр -- солнечная активность (см
+\begin{lstlisting}[language=C++, basicstyle=\fontsize{10}{9}\ttfamily,
+	caption={Добавление случайной велечины к измеренной},label={lst:RandomizeValue}]
+int orbitresolver::CalculationFunctionWithFlux(const gsl_vector * x, void *data,
+                                gsl_vector * f)
+{
+    restore_function_parameters *parameters =
+            (restore_function_parameters *) data;
+    const size_t result_size = parameters->objects_observations->size();
+    time_t start_time =
+            parameters->objects_observations->begin()->GetObservationTime();
+    time_t end_time =
+            parameters->objects_observations->back().GetObservationTime();
+    time_t epoch =
+            parameters->real_orbit->GetEpochTime();
+    std::list<SightObject> *objects_observations =
+            parameters->objects_observations;
+    RadarStation *radar = parameters->observer;
+
+    double drag_coefficient = gsl_vector_get(x, 0);
+    double inclination_angle = gsl_vector_get(x, 1);
+    double ascending_node = gsl_vector_get(x, 2);
+    double eccentricity = gsl_vector_get(x, 3);
+    double apsis_argument = gsl_vector_get(x, 4);
+    double mean_anomaly = gsl_vector_get(x, 5);
+    double mean_motion = gsl_vector_get(x, 6);
+
+    Orbit orbit(0, *parameters->real_orbit,
+                drag_coefficient, inclination_angle, ascending_node,
+                eccentricity, apsis_argument, mean_anomaly, mean_motion);
+    orbit.SetEpoch(parameters->real_orbit->GetEpochTime());
+
+    radar->SetSigma(0);
+//    radar->SetLocalFlux(gsl_vector_get(x, 7));
+    radar->SetLocalFlux(parameters->observer->GetLocalFlux());
+
+    ImitationDriver driver;
+    driver.addRadarStation(*radar);
+    driver.addSatellite(orbit);
+
+    auto simulation_report = driver.RunImitation(start_time, end_time);
+    std::list<SightObject> result_objects;
+    for(auto it = simulation_report.begin(); it != simulation_report.end();
+        ++it)
+    {
+        auto observation_report = it->second;
+        for(auto observation_iterator = observation_report.begin();
+            observation_iterator != observation_report.end();
+            ++observation_iterator) {
+            if(observation_iterator->GetObservedObjects().size() < 1)
+                result_objects.push_back(SightObject(0, 0, 0, 0, 0));
+            else
+            {
+                auto observe = *observation_iterator;
+                result_objects.push_back(observe.GetObservedObjects()[0]);
+            }
+        }
+    }
+
+    size_t i = 0;
+    for (auto it = result_objects.begin(),
+                 it2 = objects_observations->begin();
+         it != result_objects.end() && it2 != objects_observations->end()
+         && i < result_size; ++it, ++it2, ++i)
+    {
+        double delta = pow(it->GetDistanceTo()
+                       - it2->GetDistanceTo(), 2);
+        //std::cout << "Delta : " << delta << std::endl;
+        gsl_vector_set(f, i, delta);
+    }
+
+    return GSL_SUCCESS;
+}
+\end{lstlisting}

@@ -4,10 +4,10 @@
 \node [block, below of=init]                                (TLEReader)         {TLEReader};
 \node [block, below of=TLEReader]                           (AstroUtils)        {AstroUtils};
 \node [block, below of=AstroUtils]                          (OrbitCalculator)   {OrbitCalculator};
-\node [block, right of=TLEReader, node distance = 5cm]      (NeQuick)           {NeQuick};
-\node [block, right of=AstroUtils, node distance = 5cm]     (RadarStation)      {RadarStation};
-\node [block, right of=OrbitCalculator, node distance = 5cm](out)               {Выход};
-\node [input, below of=out]                                 (end)               {Конец итерации};
+\node [block, right of=TLEReader, node distance = 6cm]      (NeQuick)           {NeQuick};
+\node [block, right of=AstroUtils, node distance = 6cm]     (RadarStation)      {RadarStation};
+\node [block, right of=OrbitCalculator, node distance = 6cm](out)               {Выход};
+\node [input, below of=out, node distance=2.5cm]              (end)               {Конец итерации};
 
 % Рёбра
 \path [line, dotted] (init)         -- node {} (TLEReader);
